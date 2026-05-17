@@ -1,0 +1,185 @@
+import math
+import threading
+
+# ==========================================
+# CẤU HÌNH ĐIỂM SỐ HEURISTIC CHO AI
+# ==========================================
+SCORE_MATRIX = {
+    (1, 1, 1, 1, 1): 100000,   
+    (0, 1, 1, 1, 1, 0): 10000, 
+    (0, 1, 1, 1, 1): 2000,     
+    (1, 1, 1, 1, 0): 2000,     
+    (0, 1, 1, 1, 0): 1500,     
+    (0, 1, 1, 0, 1, 0): 1200,  
+    (0, 1, 1, 1): 500,         
+    (0, 1, 1, 0): 200,         
+
+    (-1, -1, -1, -1, -1): -80000, 
+    (0, -1, -1, -1, -1, 0): -30000,
+    (0, -1, -1, -1, -1): -9500,    
+    (-1, -1, -1, -1, 0): -9500,
+    (0, -1, -1, -1, 0): -4000,     
+    (0, -1, -1, -1): -800,
+    (0, -1, -1, 0): -100
+}
+
+class CaroLogic:
+    def __init__(self, board_size=15, bot_depth=3):
+        self.lock = threading.Lock()
+        self.board_size = board_size
+        self.bot_depth = bot_depth
+        self.reset_game()
+
+    def reset_game(self, board_size=None, bot_depth=None):
+        """Khởi tạo hoặc làm mới ván đấu"""
+        with self.lock:
+            if board_size: self.board_size = board_size
+            if bot_depth: self.bot_depth = bot_depth
+            
+            self.board = [[0 for _ in range(self.board_size)] for _ in range(self.board_size)]
+            self.game_over = False
+            self.current_turn = -1  # -1: Người, 1: Bot
+            self.pgn_history = []
+            self.move_history = []
+            self.bot_thinking = False
+
+    def play_move(self, r, c, player):
+        """Thực hiện một nước đi lên bàn cờ"""
+        with self.lock:
+            if self.board[r][c] == 0 and not self.game_over:
+                self.board[r][c] = player
+                self.move_history.append((r, c, player))
+                
+                is_win = self.check_win(self.board, player)
+                move_str = self.format_output(r, c) + ("#" if is_win else "")
+                self.pgn_history.append(move_str)
+                
+                if is_win:
+                    self.game_over = True
+                else:
+                    self.current_turn = 1 if player == -1 else -1
+                return True, is_win, move_str
+        return False, False, ""
+
+    def undo_move(self):
+        """Lùi lại 1 lượt (xóa 2 nước đi gần nhất)"""
+        with self.lock:
+            if self.bot_thinking or len(self.move_history) < 2:
+                return False
+            
+            r_bot, c_bot, _ = self.move_history.pop()
+            self.board[r_bot][c_bot] = 0
+            if self.pgn_history: self.pgn_history.pop()
+            
+            r_ply, c_ply, _ = self.move_history.pop()
+            self.board[r_ply][c_ply] = 0
+            if self.pgn_history: self.pgn_history.pop()
+            
+            self.game_over = False
+            self.current_turn = -1
+            return True
+
+    # ================= AI & HEURISTIC =================
+    def evaluate_line(self, line):
+        line_score = 0
+        line_str = tuple(line)
+        for length in [6, 5, 4]:
+            for i in range(len(line_str) - length + 1):
+                sub_line = line_str[i:i+length]
+                if sub_line in SCORE_MATRIX:
+                    line_score += SCORE_MATRIX[sub_line]
+        return line_score
+
+    def evaluate_board_heuristic(self, board_state):
+        total_score = 0
+        for r in range(self.board_size):
+            total_score += self.evaluate_line(board_state[r])
+        for c in range(self.board_size):
+            col = [board_state[r][c] for r in range(self.board_size)]
+            total_score += self.evaluate_line(col)
+        for d in range(-self.board_size + 1, self.board_size):
+            diag1 = [board_state[i][i - d] for i in range(self.board_size) if 0 <= i - d < self.board_size]
+            diag2 = [board_state[i][self.board_size - 1 - i - d] for i in range(self.board_size) if 0 <= self.board_size - 1 - i - d < self.board_size]
+            if len(diag1) >= 4: total_score += self.evaluate_line(diag1)
+            if len(diag2) >= 4: total_score += self.evaluate_line(diag2)
+        return total_score
+
+    def check_win(self, board_state, player):
+        for r in range(self.board_size):
+            for c in range(self.board_size):
+                if board_state[r][c] != player: continue
+                for dr, dc in [(0, 1), (1, 0), (1, 1), (1, -1)]:
+                    count = 0
+                    for i in range(5):
+                        nr, nc = r + dr*i, c + dc*i
+                        if 0 <= nr < self.board_size and 0 <= nc < self.board_size and board_state[nr][nc] == player:
+                            count += 1
+                        else: break
+                    if count == 5: return True
+        return False
+
+    def get_interesting_moves(self, board_state):
+        moves = set()
+        for r in range(self.board_size):
+            for c in range(self.board_size):
+                if board_state[r][c] != 0:
+                    for dr in [-1, 0, 1]:
+                        for dc in [-1, 0, 1]:
+                            if dr == 0 and dc == 0: continue
+                            nr, nc = r + dr, c + dc
+                            if 0 <= nr < self.board_size and 0 <= nc < self.board_size and board_state[nr][nc] == 0:
+                                moves.add((nr, nc))
+        
+        move_list = list(moves)
+        if self.bot_depth == 1:
+            return move_list[:5] if move_list else [(self.board_size//2, self.board_size//2)]
+
+        move_list.sort(key=lambda m: abs(m[0]-self.board_size//2) + abs(m[1]-self.board_size//2))
+        return move_list[:30] if self.bot_depth == 2 else (move_list if move_list else [(self.board_size//2, self.board_size//2)])
+
+    def minimax(self, board_state, depth, alpha, beta, maximizing_player):
+        if self.check_win(board_state, 1): return 1000000 + depth, None
+        if self.check_win(board_state, -1): return -1000000 - depth, None
+        if depth == 0: return self.evaluate_board_heuristic(board_state), None
+
+        moves = self.get_interesting_moves(board_state)
+        best_move = None
+
+        if maximizing_player:
+            max_eval = -math.inf
+            for r, c in moves:
+                board_state[r][c] = 1
+                evaluation, _ = self.minimax(board_state, depth - 1, alpha, beta, False)
+                board_state[r][c] = 0
+                if evaluation > max_eval: max_eval = evaluation; best_move = (r, c)
+                alpha = max(alpha, evaluation)
+                if beta <= alpha: break
+            return max_eval, best_move
+        else:
+            min_eval = math.inf
+            for r, c in moves:
+                board_state[r][c] = -1
+                evaluation, _ = self.minimax(board_state, depth - 1, alpha, beta, True)
+                board_state[r][c] = 0
+                if evaluation < min_eval: min_eval = evaluation; best_move = (r, c)
+                beta = min(beta, evaluation)
+                if beta <= alpha: break
+            return min_eval, best_move
+
+    # ================= TIỆN ÍCH =================
+    def format_output(self, row, col):
+        return f"{chr(col + ord('A'))}{row + 1}"
+
+    def print_pgn_final(self):
+        if not self.pgn_history: return
+        print("\n" + "="*40)
+        print("      BIÊN BẢN TRẬN ĐẤU PGN      ")
+        print("="*40)
+        pgn_str = ""
+        for i in range(0, len(self.pgn_history), 2):
+            move_num = (i // 2) + 1
+            p_move = self.pgn_history[i]
+            b_move = self.pgn_history[i+1] if i+1 < len(self.pgn_history) else ""
+            pgn_str += f"{move_num}. {p_move} {b_move}  "
+        print(pgn_str)
+        print("="*40 + "\n")
