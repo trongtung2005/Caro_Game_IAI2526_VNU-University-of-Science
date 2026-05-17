@@ -17,7 +17,7 @@ class CaroUI:
         # ==========================================
         try:
             # Đảm bảo bạn đã đổi tên file ảnh thành đúng 'background.jpg'
-            self.orig_bg_image = pygame.image.load("background.jpg").convert()
+            self.orig_bg_image = pygame.image.load("bbb.jpg").convert()
         except pygame.error:
             print("⚠️ Không tìm thấy file 'background.jpg'! Sẽ dùng nền màu trơn.")
             self.orig_bg_image = None
