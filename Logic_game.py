@@ -4,24 +4,44 @@ import threading
 # ==========================================
 # CẤU HÌNH ĐIỂM SỐ HEURISTIC CHO AI
 # ==========================================
-SCORE_MATRIX = {
-    (1, 1, 1, 1, 1): 100000,   
-    (0, 1, 1, 1, 1, 0): 10000, 
-    (0, 1, 1, 1, 1): 2000,     
-    (1, 1, 1, 1, 0): 2000,     
-    (0, 1, 1, 1, 0): 1500,     
-    (0, 1, 1, 0, 1, 0): 1200,  
-    (0, 1, 1, 1): 500,         
-    (0, 1, 1, 0): 200,         
+# ==========================================
+# CẤU HÌNH ĐIỂM SỐ HEURISTIC CHO AI (LAI GIỮA PATTERN & CÔNG/THỦ)
+# ==========================================
+# 1: AI (Bot), -1: Người chơi (Human), 0: Ô trống
 
-    (-1, -1, -1, -1, -1): -80000, 
-    (0, -1, -1, -1, -1, 0): -30000,
-    (0, -1, -1, -1, -1): -9500,    
-    (-1, -1, -1, -1, 0): -9500,
-    (0, -1, -1, -1, 0): -4000,     
-    (0, -1, -1, -1): -800,
-    (0, -1, -1, 0): -100
+# 1. MA TRẬN TẤN CÔNG (Điểm dương - AI tìm cách tạo ra thế này)
+ATTACK_MATRIX = {
+    (1, 1, 1, 1, 1): 200000,       # Thắng chắc (5 quân)
+    (0, 1, 1, 1, 1, 0): 11000,     # Mở 2 đầu (4 quân) - Sắp thắng
+    (0, 1, 1, 1, 1): 2700,         # Chặn 1 đầu (4 quân)
+    (1, 1, 1, 1, 0): 2700,         # Chặn 1 đầu (4 quân)
+    (0, 1, 1, 1, 0): 670,          # Mở 2 đầu (3 quân)
+    (0, 1, 1, 0, 1, 0): 500,       # 3 quân đứt đoạn (X X _ X)
+    (0, 1, 0, 1, 1, 0): 500,       # 3 quân đứt đoạn (X _ X X)
+    (0, 1, 1, 1): 210,             # Chặn 1 đầu (3 quân)
+    (1, 1, 1, 0): 210,             # Chặn 1 đầu (3 quân)
+    (0, 1, 1, 0): 16,              # Mở 2 đầu (2 quân)
 }
+
+# 2. MA TRẬN PHÒNG THỦ (Điểm âm - AI tìm cách chặn/tránh thế này)
+# LƯU Ý: Trị tuyệt đối của Defend luôn cao hơn Attack ở các thế nguy hiểm 
+# để ép AI "thà chặn địch còn hơn tham ăn".
+DEFEND_MATRIX = {
+    (-1, -1, -1, -1, -1): -200000,     # Địch thắng chắc -> Điểm âm tuyệt đối
+    (0, -1, -1, -1, -1, 0): -45000,    # Địch có 4 quân mở 2 đầu -> Ưu tiên chặn GẤP (45000 > 11000)
+    (0, -1, -1, -1, -1): -2700,        # Địch có 4 quân chặn 1 đầu 
+    (-1, -1, -1, -1, 0): -2700,
+    (0, -1, -1, -1, 0): -1500,         # Địch có 3 quân mở 2 đầu -> Phải chặn ngay (1500 > 670)
+    (0, -1, -1, 0, -1, 0): -1000,      # Địch có 3 quân đứt đoạn (O O _ O)
+    (0, -1, 0, -1, -1, 0): -1000,      # Địch có 3 quân đứt đoạn (O _ O O)
+    (0, -1, -1, -1): -210,
+    (-1, -1, -1, 0): -210,
+    (0, -1, -1, 0): -16,
+}
+
+# 3. GỘP CHUNG (Merge) ĐỂ THUẬT TOÁN ĐỌC ĐƯỢC
+# Cú pháp ** dùng để nối 2 Dictionary lại làm 1 trong Python
+SCORE_MATRIX = {**ATTACK_MATRIX, **DEFEND_MATRIX}
 
 class CaroLogic:
     def __init__(self, board_size=15, bot_depth=3):
