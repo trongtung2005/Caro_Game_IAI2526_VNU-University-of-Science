@@ -3,7 +3,7 @@ import sys
 import threading
 import time
 import re
-import math 
+##import math 
 
 # Nạp file logic của bạn vào (đảm bảo file kia tên là Logic_game.py)
 from Logic_game import CaroLogic
@@ -12,9 +12,6 @@ class CaroUI:
     def __init__(self):
         self.logic = CaroLogic()
         
-        # ==========================================
-        # 1. NẠP ẢNH NỀN (BACKGROUND)
-        # ==========================================
         try:
             # Đảm bảo bạn đã đổi tên file ảnh thành đúng 'background.jpg'
             self.orig_bg_image = pygame.image.load("bbb.jpg").convert()
@@ -22,9 +19,7 @@ class CaroUI:
             print("⚠️ Không tìm thấy file 'background.jpg'! Sẽ dùng nền màu trơn.")
             self.orig_bg_image = None
 
-        # ==========================================
-        # 2. PHỐI MÀU GIAO DIỆN (TONE NEON DARK MODE)
-        # ==========================================
+
         self.COLOR_BG = (20, 20, 25)           # Màu nền dự phòng (Đen xám)
         self.COLOR_BOARD = (30, 30, 35)        # Màu bảng dự phòng
         self.COLOR_GRID = (0, 255, 255)        # Lưới màu Xanh Cyan phát sáng
