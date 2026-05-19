@@ -3,9 +3,8 @@ import sys
 import threading
 import time
 import re
-##import math 
+import math 
 
-# Nạp file logic của bạn vào (đảm bảo file kia tên là Logic_game.py)
 from Logic_game import CaroLogic
 
 class CaroUI:
