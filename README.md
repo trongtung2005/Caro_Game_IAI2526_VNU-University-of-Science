@@ -5,7 +5,8 @@ Code trên phần mềm Visual Studio Code đăng nhập bằng tk github của 
 
 Cài đặt git https://git-scm.com/install/
 
-Vào VSCode
+Vào VSCode -> Terminal
+Gõ: git clone https://github.com/trongtung2005/Caro_Game_IAI2526_VNU-University-of-Science.git
 
 Lấy code mới nhất: git pull origin main
 
@@ -14,6 +15,8 @@ Upload code:
 Bước 1: git add .
 
 Bước 2:  git commit -m "Lời nhắn ghi rõ mình vừa sửa cái gì"
+
+Bước 3: git pull origin main
 
 Bước 3: git push origin main
 
