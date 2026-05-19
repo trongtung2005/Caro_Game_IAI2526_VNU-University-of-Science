@@ -10,13 +10,7 @@ from Logic_game import CaroLogic
 class CaroUI:
     def __init__(self):
         self.logic = CaroLogic()
-        
-        try:
-            # Đảm bảo bạn đã đổi tên file ảnh thành đúng 'background.jpg'
-            self.orig_bg_image = pygame.image.load("bbb.jpg").convert()
-        except pygame.error:
-            print("⚠️ Không tìm thấy file 'background.jpg'! Sẽ dùng nền màu trơn.")
-            self.orig_bg_image = None
+
 
 
         self.COLOR_BG = (20, 20, 25)           # Màu nền dự phòng (Đen xám)
