@@ -20,6 +20,9 @@ class CaroUI:
         self.COLOR_TEXT = (255, 255, 255)      # Chữ tọa độ màu Trắng
         self.COLOR_X = (255, 0, 128)           # Quân X màu Hồng Neon
         self.COLOR_O = (57, 255, 20)           # Quân O màu Xanh lá Neon
+
+        self.orig_bg_image = None  
+        self.scaled_game_bg = None
         
         self.GRID_SIZE = 40                             
         self.PADDING = 40  
