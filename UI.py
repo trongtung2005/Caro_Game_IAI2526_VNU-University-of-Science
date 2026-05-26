@@ -20,9 +20,7 @@ class CaroUI:
         self.COLOR_TEXT = (255, 255, 255)      # Chữ tọa độ màu Trắng
         self.COLOR_X = (255, 0, 128)           # Quân X màu Hồng Neon
         self.COLOR_O = (57, 255, 20)           # Quân O màu Xanh lá Neon
-
-        self.orig_bg_image = None  
-        self.scaled_game_bg = None
+        self.COLOR_HIGHLIGHT = (255, 255, 200)   # Khung viền Vàng cho nước đi vừa đánh
         
         self.GRID_SIZE = 40                             
         self.PADDING = 40  
@@ -33,6 +31,9 @@ class CaroUI:
         # BIẾN QUẢN LÝ QUYỀN ĐI TRƯỚC: -1 mặc định là O (đi trước), 1 là X (đi sau)
         self.player_side = -1  
         self.bot_side = 1
+        
+        # Biến lưu vị trí vừa đánh để highlight
+        self.last_move = None
 
     def parse_terminal_input(self, move_str):
         move_str = move_str.strip().upper()
@@ -68,6 +69,7 @@ class CaroUI:
             r, c = move
             success, is_win, move_str = self.logic.play_move(r, c, self.bot_side)
             if success:
+                self.last_move = (r, c)  # Lưu lại nước đi của Bot để vẽ Highlight
                 print(f"-> Bot đáp trả: {move_str}")
                 if is_win: print("\n[KẾT THÚC] BOT ĐÃ THẮNG!")
                 else: print("Nhập nước đi (Ví dụ: H8) hoặc [U: Undo], [R: Reset]: ")
@@ -101,6 +103,13 @@ class CaroUI:
             screen.blit(text_surface, (self.PADDING // 3, pos_y))                 
             screen.blit(text_surface, (window_size - self.PADDING + 15, pos_y))   
 
+        # Highlight ô vừa đánh (Vẽ khung viền màu vàng)
+        if self.last_move:
+            lr, lc = self.last_move
+            hx = self.PADDING + lc * self.GRID_SIZE
+            hy = self.PADDING + lr * self.GRID_SIZE
+            pygame.draw.rect(screen, self.COLOR_HIGHLIGHT, (hx, hy, self.GRID_SIZE, self.GRID_SIZE), 3)
+
         with self.logic.lock:
             for r in range(self.logic.board_size):
                 for c in range(self.logic.board_size):
@@ -117,7 +126,6 @@ class CaroUI:
         title_font = pygame.font.SysFont("tahoma", 28, bold=True)
         sub_font = pygame.font.SysFont("tahoma", 18, bold=True)
         
-        # Căn chỉnh lại độ cao các nút để đủ chỗ cho 3 menu
         btn_size_10 = pygame.Rect(100, 120, 100, 45)
         btn_size_12 = pygame.Rect(220, 120, 100, 45)
         btn_size_15 = pygame.Rect(340, 120, 100, 45)
@@ -126,7 +134,6 @@ class CaroUI:
         btn_medium = pygame.Rect(220, 230, 100, 45)
         btn_hard = pygame.Rect(340, 230, 100, 45)
         
-        # Nút cho Tùy chọn 3: Người hoặc Máy đi trước
         btn_first_player = pygame.Rect(120, 340, 130, 45)
         btn_first_bot = pygame.Rect(290, 340, 130, 45)
 
@@ -216,6 +223,8 @@ class CaroUI:
                 self.scaled_game_bg = pygame.transform.scale(self.orig_bg_image, (window_size, window_size))
 
             self.logic.reset_game()
+            self.last_move = None  # Xóa highlight khi bắt đầu ván mới
+            
             print(f"\n=== TRẬN ĐẤU MỚI: BÀN CỜ {self.logic.board_size}x{self.logic.board_size} - AI CẤP ĐỘ {self.logic.bot_depth} ===")
             print(" * [U]: Undo đi lại  |  [R]: Reset làm mới")
 
@@ -226,17 +235,22 @@ class CaroUI:
                     self.input_buffer = ""
                     
                     if cmd == 'U':
-                        if self.logic.undo_move(): print("Đã lùi lại 1 lượt đi!")
+                        if self.logic.undo_move(): 
+                            self.last_move = None # Xóa highlight vì vừa lùi bước
+                            print("Đã lùi lại 1 lượt đi!")
                         else: print("Không thể Undo lúc này!")
                     elif cmd == 'R':
                         self.logic.reset_game()
+                        self.last_move = None
                         print("Trận đấu đã được làm mới!")
                     else:
                         coords = self.parse_terminal_input(cmd)
                         if coords is None: print("❌ Định dạng sai! Nhập lại: ")
                         else:
                             success, is_win, move_str = self.logic.play_move(coords[0], coords[1], self.player_side)
-                            if success: print(f"-> Bạn đi (Terminal): {move_str}")
+                            if success: 
+                                self.last_move = (coords[0], coords[1]) # Lưu lại nước của người
+                                print(f"-> Bạn đi (Terminal): {move_str}")
                             else: print("❌ Ô đã có quân! Chọn ô khác: ")
 
                 # Lượt của Máy (Khởi động luồng AI)
@@ -254,9 +268,12 @@ class CaroUI:
 
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_u:
-                            if self.logic.undo_move(): print(" Đã lùi lại 1 lượt đi!")
+                            if self.logic.undo_move(): 
+                                self.last_move = None
+                                print(" Đã lùi lại 1 lượt đi!")
                         elif event.key == pygame.K_r:
                             self.logic.reset_game()
+                            self.last_move = None
                             print("Trận đấu đã được làm mới!")
 
                     # Xử lý Click chuột cho Người chơi
@@ -267,7 +284,9 @@ class CaroUI:
                         
                         if 0 <= c < self.logic.board_size and 0 <= r < self.logic.board_size:
                             success, is_win, move_str = self.logic.play_move(r, c, self.player_side)
-                            if success: print(f"-> Bạn đi (UI Mouse): {move_str}")
+                            if success: 
+                                self.last_move = (r, c) # Lưu lại nước của người
+                                print(f"-> Bạn đi (UI Mouse): {move_str}")
 
                 # Game Over Animation
                 if self.logic.game_over:
