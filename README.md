@@ -1,5 +1,5 @@
 # Caro_Game_IAI2526_VNU-University-of-Science
-Project cuối kỳ của môn học Nhập môn trí tuệ nhân tạo HUS - Giáo viên: CN.Vi Anh Quân, GS.Nguyễn Thế Toàn
+Project cuối kỳ của môn học Nhập môn trí tuệ nhân tạo HUS - Giảng viên: CN.Vi Anh Quân, GS.Nguyễn Thế Toàn
 
 Code trên phần mềm Visual Studio Code đăng nhập bằng tk github của mình đẫ liên kết trở thành người sửa
 

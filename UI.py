@@ -35,6 +35,21 @@ class CaroUI:
         # Biến lưu vị trí vừa đánh để highlight
         self.last_move = None
 
+        # === KHỞI TẠO VÀ PHÁT NHẠC NỀN ===
+        pygame.mixer.init()
+        try:
+            # Nạp file nhạc nền vào bộ nhớ đệm
+            pygame.mixer.music.load("background_music.mp3")
+            
+            # Cài đặt âm lượng ban đầu (Nhạc nền nên để nhỏ vừa phải, từ 0.0 đến 1.0)
+            pygame.mixer.music.set_volume(0.4)
+            
+            # Phát nhạc. Truyền tham số -1 để nhạc tự động lặp lại (loop) vô hạn từ đầu
+            pygame.mixer.music.play(-1)
+            print("✅ Đã bật nhạc nền tự động!")
+        except Exception as e:
+            print(f"⚠️ Lỗi tải nhạc nền: {e}")
+
     def parse_terminal_input(self, move_str):
         move_str = move_str.strip().upper()
         max_char = chr(ord('A') + self.logic.board_size - 1)
