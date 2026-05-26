@@ -210,11 +210,11 @@ class CaroUI:
                     self.input_buffer = ""
                     
                     if cmd == 'U':
-                        if self.logic.undo_move(): print("↩️ Đã lùi lại 1 lượt đi!")
-                        else: print("⚠️ Không thể Undo lúc này!")
+                        if self.logic.undo_move(): print("Đã lùi lại 1 lượt đi!")
+                        else: print("Không thể Undo lúc này!")
                     elif cmd == 'R':
                         self.logic.reset_game()
-                        print("🔄 Trận đấu đã được làm mới!")
+                        print("Trận đấu đã được làm mới!")
                     else:
                         coords = self.parse_terminal_input(cmd)
                         if coords is None: print("❌ Định dạng sai! Nhập lại: ")
@@ -238,10 +238,10 @@ class CaroUI:
 
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_u:
-                            if self.logic.undo_move(): print("↩️ Đã lùi lại 1 lượt đi!")
+                            if self.logic.undo_move(): print(" Đã lùi lại 1 lượt đi!")
                         elif event.key == pygame.K_r:
                             self.logic.reset_game()
-                            print("🔄 Trận đấu đã được làm mới!")
+                            print("Trận đấu đã được làm mới!")
 
                     if event.type == pygame.MOUSEBUTTONDOWN and not self.logic.game_over and self.logic.current_turn == -1 and not self.logic.bot_thinking:
                         mouseX, mouseY = pygame.mouse.get_pos()
