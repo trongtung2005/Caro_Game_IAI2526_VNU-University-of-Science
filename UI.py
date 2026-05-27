@@ -4,6 +4,7 @@ import threading
 import time
 import re
 import math 
+import os
 
 from Logic_game import CaroLogic
 
@@ -20,7 +21,7 @@ class CaroUI:
         self.COLOR_TEXT = (255, 255, 255)      # Chữ tọa độ màu Trắng
         self.COLOR_X = (255, 0, 128)           # Quân X màu Hồng Neon
         self.COLOR_O = (57, 255, 20)           # Quân O màu Xanh lá Neon
-        self.COLOR_HIGHLIGHT = (255, 255, 200)   # Khung viền Vàng cho nước đi vừa đánh
+        self.COLOR_HIGHLIGHT = (255, 255, 200) # Khung viền Vàng cho nước đi vừa đánh
         
         self.GRID_SIZE = 40                             
         self.PADDING = 40  
@@ -35,20 +36,34 @@ class CaroUI:
         # Biến lưu vị trí vừa đánh để highlight
         self.last_move = None
 
-        # === KHỞI TẠO VÀ PHÁT NHẠC NỀN ===
+        # === KHỞI TẠO ÂM THANH & NHẠC NỀN ===
         pygame.mixer.init()
+        
+        # 1. Nhạc nền (Cập nhật theo tên file của Tùng)
         try:
-            # Nạp file nhạc nền vào bộ nhớ đệm
             pygame.mixer.music.load("background_music.mp3")
-            
-            # Cài đặt âm lượng ban đầu (Nhạc nền nên để nhỏ vừa phải, từ 0.0 đến 1.0)
-            pygame.mixer.music.set_volume(0.4)
-            
-            # Phát nhạc. Truyền tham số -1 để nhạc tự động lặp lại (loop) vô hạn từ đầu
-            pygame.mixer.music.play(-1)
-            print("✅ Đã bật nhạc nền tự động!")
+            pygame.mixer.music.set_volume(0.3) # Nhạc nền để nhỏ (30%)
+            pygame.mixer.music.play(-1)        # -1 để lặp vô hạn
         except Exception as e:
-            print(f"⚠️ Lỗi tải nhạc nền: {e}")
+            print(f"⚠️ Không tìm thấy nhạc nền (background_music.mp3). Lỗi: {e}")
+
+        # 2. Hiệu ứng âm thanh SFX (Cập nhật sang đuôi .mp3 theo file của Tùng)
+        try:
+            self.sound_move = pygame.mixer.Sound("move.mp3")
+            self.sound_win = pygame.mixer.Sound("win.mp3")
+            self.sound_lose = pygame.mixer.Sound("lose.mp3")
+            
+            self.sound_move.set_volume(0.8)
+            self.sound_win.set_volume(0.7)
+            self.sound_lose.set_volume(0.7)
+        except Exception as e:
+            print(f"⚠️ Không tìm thấy file âm thanh hiệu ứng (.mp3). Lỗi: {e}")
+            self.sound_move = self.sound_win = self.sound_lose = None
+
+    def play_sfx(self, sound_obj):
+        """Hàm hỗ trợ phát âm thanh an toàn"""
+        if sound_obj:
+            sound_obj.play()
 
     def parse_terminal_input(self, move_str):
         move_str = move_str.strip().upper()
@@ -77,14 +92,15 @@ class CaroUI:
         with self.logic.lock:
             board_copy = [row[:] for row in self.logic.board]
         
-        # Báo cho hàm minimax biết Bot đang đóng vai trò nào (1 là Maximize, -1 là Minimize)
+        # Báo cho hàm minimax biết Bot đang đóng vai trò nào
         _, move = self.logic.minimax(board_copy, depth=self.logic.bot_depth, alpha=-math.inf, beta=math.inf, maximizing_player=(self.bot_side == 1))
         
         if move and not self.logic.game_over:
             r, c = move
             success, is_win, move_str = self.logic.play_move(r, c, self.bot_side)
             if success:
-                self.last_move = (r, c)  # Lưu lại nước đi của Bot để vẽ Highlight
+                self.play_sfx(self.sound_move) # Tiếng Bot hạ quân
+                self.last_move = (r, c)
                 print(f"-> Bot đáp trả: {move_str}")
                 if is_win: print("\n[KẾT THÚC] BOT ĐÃ THẮNG!")
                 else: print("Nhập nước đi (Ví dụ: H8) hoặc [U: Undo], [R: Reset]: ")
@@ -118,7 +134,7 @@ class CaroUI:
             screen.blit(text_surface, (self.PADDING // 3, pos_y))                 
             screen.blit(text_surface, (window_size - self.PADDING + 15, pos_y))   
 
-        # Highlight ô vừa đánh (Vẽ khung viền màu vàng)
+        # Highlight ô vừa đánh
         if self.last_move:
             lr, lc = self.last_move
             hx = self.PADDING + lc * self.GRID_SIZE
@@ -219,7 +235,15 @@ class CaroUI:
     def run(self):
         pygame.init()
         screen = pygame.display.set_mode((540, 540))
-        pygame.display.set_caption("Caro AI - Neon Edition")
+        pygame.display.set_caption("Caro AI - Cờ Caro")
+        
+        # === ĐỔI ICON CỬA SỔ ===
+        try:
+            icon_image = pygame.image.load("icon.png")
+            pygame.display.set_icon(icon_image)
+        except Exception as e:
+            pass
+
         font = pygame.font.SysFont("tahoma", 14, bold=True)
         clock = pygame.time.Clock()
         
@@ -228,6 +252,14 @@ class CaroUI:
         input_thread.start()
 
         while True:
+            # === SỬA LỖI: PHÁT LẠI NHẠC NỀN KHI QUAY VỀ MENU / CHƠI VÁN MỚI ===
+            try:
+                if not pygame.mixer.music.get_busy():
+                    pygame.mixer.music.play(-1)
+            except Exception as e:
+                pass
+            # =================================================================
+
             self.show_menu(screen, font)
             
             board_pixels = self.logic.board_size * self.GRID_SIZE
@@ -238,7 +270,7 @@ class CaroUI:
                 self.scaled_game_bg = pygame.transform.scale(self.orig_bg_image, (window_size, window_size))
 
             self.logic.reset_game()
-            self.last_move = None  # Xóa highlight khi bắt đầu ván mới
+            self.last_move = None 
             
             print(f"\n=== TRẬN ĐẤU MỚI: BÀN CỜ {self.logic.board_size}x{self.logic.board_size} - AI CẤP ĐỘ {self.logic.bot_depth} ===")
             print(" * [U]: Undo đi lại  |  [R]: Reset làm mới")
@@ -251,7 +283,7 @@ class CaroUI:
                     
                     if cmd == 'U':
                         if self.logic.undo_move(): 
-                            self.last_move = None # Xóa highlight vì vừa lùi bước
+                            self.last_move = None 
                             print("Đã lùi lại 1 lượt đi!")
                         else: print("Không thể Undo lúc này!")
                     elif cmd == 'R':
@@ -264,7 +296,8 @@ class CaroUI:
                         else:
                             success, is_win, move_str = self.logic.play_move(coords[0], coords[1], self.player_side)
                             if success: 
-                                self.last_move = (coords[0], coords[1]) # Lưu lại nước của người
+                                self.play_sfx(self.sound_move) # Tiếng Người hạ quân
+                                self.last_move = (coords[0], coords[1]) 
                                 print(f"-> Bạn đi (Terminal): {move_str}")
                             else: print("❌ Ô đã có quân! Chọn ô khác: ")
 
@@ -300,11 +333,19 @@ class CaroUI:
                         if 0 <= c < self.logic.board_size and 0 <= r < self.logic.board_size:
                             success, is_win, move_str = self.logic.play_move(r, c, self.player_side)
                             if success: 
-                                self.last_move = (r, c) # Lưu lại nước của người
+                                self.play_sfx(self.sound_move) # Tiếng Người hạ quân
+                                self.last_move = (r, c) 
                                 print(f"-> Bạn đi (UI Mouse): {move_str}")
 
                 # Game Over Animation
                 if self.logic.game_over:
+                    # === KIỂM TRA ĐỂ PHÁT NHẠC THẮNG/THUA ===
+                    pygame.mixer.music.stop() # Tắt nhạc nền để bật nhạc Win/Lose rõ hơn
+                    if self.logic.current_turn == self.player_side:
+                        self.play_sfx(self.sound_win)
+                    else:
+                        self.play_sfx(self.sound_lose)
+                        
                     self.draw_ui(screen, font)
                     pygame.display.flip()
                     time.sleep(1.5)
@@ -314,13 +355,12 @@ class CaroUI:
                     overlay.fill((0, 0, 0))
                     screen.blit(overlay, (0, 0))
                     
-                    # Xác định thông báo dựa trên bên nào vừa đi nước kết thúc
                     msg, color = ("BẠN ĐÃ CHIẾN THẮNG!", (57, 255, 20)) if self.logic.current_turn == self.player_side else ("BẠN THUA RỒI!", (255, 0, 128))
                     title_font = pygame.font.SysFont("tahoma", 24, bold=True)
                     hint_font = pygame.font.SysFont("tahoma", 14)
                     
                     screen.blit(title_font.render(msg, True, color), (window_size//2 - 120, window_size//2 - 30))
-                    screen.blit(hint_font.render("(Nhấn chuột bất kỳ để về Menu)", True, (255, 255, 255)), (window_size//2 - 130, window_size//2 + 20))
+                    screen.blit(hint_font.render("(Nhấn chuột bất kỳ để quay lại Menu)", True, (255, 255, 255)), (window_size//2 - 130, window_size//2 + 20))
                     pygame.display.flip()
                     
                     waiting = True
