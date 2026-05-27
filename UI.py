@@ -259,7 +259,8 @@ class CaroUI:
             except Exception as e:
                 pass
             # =================================================================
-
+            screen = pygame.display.set_mode((540, 540))
+            
             self.show_menu(screen, font)
             
             board_pixels = self.logic.board_size * self.GRID_SIZE
