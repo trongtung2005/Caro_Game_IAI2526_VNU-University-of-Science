@@ -235,7 +235,7 @@ class CaroUI:
     def run(self):
         pygame.init()
         screen = pygame.display.set_mode((540, 540))
-        pygame.display.set_caption("Caro AI - Cờ Caro")
+        pygame.display.set_caption("Đại chiến cờ Caro AI")
         
         # === ĐỔI ICON CỬA SỔ ===
         try:
