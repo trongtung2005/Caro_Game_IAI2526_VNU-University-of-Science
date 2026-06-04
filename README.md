@@ -1,5 +1,7 @@
 # Caro_Game_IAI2526_VNU-University-of-Science
-Project cuối kỳ của môn học Nhập môn trí tuệ nhân tạo HUS - Giảng viên: CN.Vi Anh Quân, GS.Nguyễn Thế Toàn
+Dự án cuối kỳ của môn học Nhập môn Trí tuệ nhân tạo PHY1313 VNU-HUS
+
+Giảng viên: CN.Vi Anh Quân, GS.Nguyễn Thế Toàn
 
 
 
