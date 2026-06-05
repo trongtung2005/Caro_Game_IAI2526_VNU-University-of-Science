@@ -15,8 +15,6 @@ Trò chơi là một cuộc đấu trí thực thụ đòi hỏi tư duy logic v
 
 Dự án **Đại Chiến Cờ Caro AI** ra đời với mục tiêu số hóa trải nghiệm quen thuộc này, đồng thời mang đến một làn gió mới bằng việc tích hợp Trí tuệ nhân tạo (AI). Hệ thống AI không chỉ đơn thuần là những dòng code, mà đóng vai trò như một kỳ thủ ảo đáng gờm, sẵn sàng thử thách và giúp bạn mài giũa tư duy chiến thuật mỗi ngày.
 
-***
-
 Chúc bạn có những trận đấu thật bùng nổ và những phút giây giải trí tuyệt vời!
 
 ## ✨ Tính năng nổi bật
