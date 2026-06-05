@@ -1,7 +1,10 @@
 # Caro_Game_IAI2526_VNU-University-of-Science
 Dự án cuối kỳ của môn học: **Nhập môn Trí tuệ nhân tạo PHY1313**
+
 Trường: **Trường Đại học Khoa học Tự nhiên, ĐHQGHN (VNU-HUS)**
+
 Giảng viên: **CN. Vi Anh Quân, GS. Nguyễn Thế Toàn**
+
 Sinh viên thực hiện: **Lại Huy Hoàng, Tô Quang Hân, Nguyễn Bá Tiến Phát, Nguyễn Trọng Tùng**
 
 # 🎮 Giới thiệu chung
