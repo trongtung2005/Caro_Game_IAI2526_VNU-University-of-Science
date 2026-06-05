@@ -1,12 +1,8 @@
-# fix
 import math
 import threading
 
 # ==========================================
 # CẤU HÌNH ĐIỂM SỐ HEURISTIC CHO AI
-# ==========================================
-# ==========================================
-# CẤU HÌNH ĐIỂM SỐ HEURISTIC CHO AI (LAI GIỮA PATTERN & CÔNG/THỦ)
 # ==========================================
 # 1: AI (Bot), -1: Người chơi (Human), 0: Ô trống
 
@@ -25,14 +21,12 @@ ATTACK_MATRIX = {
 }
 
 # 2. MA TRẬN PHÒNG THỦ (Điểm âm - AI tìm cách chặn/tránh thế này)
-# LƯU Ý: Trị tuyệt đối của Defend luôn cao hơn Attack ở các thế nguy hiểm 
-# để ép AI "thà chặn địch còn hơn tham ăn".
 DEFEND_MATRIX = {
     (-1, -1, -1, -1, -1): -200000,     # Địch thắng chắc -> Điểm âm tuyệt đối
-    (0, -1, -1, -1, -1, 0): -45000,    # Địch có 4 quân mở 2 đầu -> Ưu tiên chặn GẤP (45000 > 11000)
+    (0, -1, -1, -1, -1, 0): -45000,    # Địch có 4 quân mở 2 đầu -> Ưu tiên chặn GẤP
     (0, -1, -1, -1, -1): -2700,        # Địch có 4 quân chặn 1 đầu 
     (-1, -1, -1, -1, 0): -2700,
-    (0, -1, -1, -1, 0): -1500,         # Địch có 3 quân mở 2 đầu -> Phải chặn ngay (1500 > 670)
+    (0, -1, -1, -1, 0): -1500,         # Địch có 3 quân mở 2 đầu -> Phải chặn ngay
     (0, -1, -1, 0, -1, 0): -1000,      # Địch có 3 quân đứt đoạn (O O _ O)
     (0, -1, 0, -1, -1, 0): -1000,      # Địch có 3 quân đứt đoạn (O _ O O)
     (0, -1, -1, -1): -210,
@@ -41,7 +35,6 @@ DEFEND_MATRIX = {
 }
 
 # 3. GỘP CHUNG (Merge) ĐỂ THUẬT TOÁN ĐỌC ĐƯỢC
-# Cú pháp ** dùng để nối 2 Dictionary lại làm 1 trong Python
 SCORE_MATRIX = {**ATTACK_MATRIX, **DEFEND_MATRIX}
 
 class CaroLogic:
@@ -125,18 +118,41 @@ class CaroLogic:
             if len(diag2) >= 4: total_score += self.evaluate_line(diag2)
         return total_score
 
+    # === [ĐÃ CẬP NHẬT] LUẬT CHẶN 2 ĐẦU ===
     def check_win(self, board_state, player):
         for r in range(self.board_size):
             for c in range(self.board_size):
                 if board_state[r][c] != player: continue
+                
+                # Kiểm tra 4 hướng: Ngang, Dọc, Chéo xuôi, Chéo ngược
                 for dr, dc in [(0, 1), (1, 0), (1, 1), (1, -1)]:
-                    count = 0
-                    for i in range(5):
-                        nr, nc = r + dr*i, c + dc*i
-                        if 0 <= nr < self.board_size and 0 <= nc < self.board_size and board_state[nr][nc] == player:
-                            count += 1
-                        else: break
-                    if count == 5: return True
+                    # CHỈ đếm khi đây là ô BẮT ĐẦU của chuỗi
+                    # (Tức là ô liền trước nó không phải của cùng người chơi)
+                    prev_r, prev_c = r - dr, c - dc
+                    if 0 <= prev_r < self.board_size and 0 <= prev_c < self.board_size and board_state[prev_r][prev_c] == player:
+                        continue 
+                    
+                    count = 1
+                    blocked_ends = 0
+                    
+                    # 1. Kiểm tra đầu phía trước bị chặn không? (Bị cản bởi địch hoặc Rìa bàn cờ)
+                    if prev_r < 0 or prev_r >= self.board_size or prev_c < 0 or prev_c >= self.board_size or board_state[prev_r][prev_c] == -player:
+                        blocked_ends += 1
+                        
+                    # Đếm số quân liên tiếp
+                    curr_r, curr_c = r + dr, c + dc
+                    while 0 <= curr_r < self.board_size and 0 <= curr_c < self.board_size and board_state[curr_r][curr_c] == player:
+                        count += 1
+                        curr_r += dr
+                        curr_c += dc
+                        
+                    # 2. Kiểm tra đầu phía sau bị chặn không?
+                    if curr_r < 0 or curr_r >= self.board_size or curr_c < 0 or curr_c >= self.board_size or board_state[curr_r][curr_c] == -player:
+                        blocked_ends += 1
+                        
+                    # THẮNG KHI: Đạt >= 5 quân VÀ số đầu bị chặn ít hơn 2
+                    if count >= 5 and blocked_ends < 2:
+                        return True
         return False
 
     def get_interesting_moves(self, board_state):
