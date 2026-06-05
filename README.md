@@ -5,13 +5,16 @@ Giảng viên: **CN. Vi Anh Quân, GS. Nguyễn Thế Toàn**
 Sinh viên thực hiện: **Lại Huy Hoàng, Tô Quang Hân, Nguyễn Bá Tiến Phát, Nguyễn Trọng Tùng**
 
 # 🎮 Giới thiệu chung
-Nếu bạn yêu thích các thể loại trò chơi trí tuệ hẳn bạn không hề xa lạ với cờ Caro (Gomoku). Hầu hết những ai đã từng đến trường đều đã thử sức mình với môn cờ đơn giản nhưng cũng giàu tính chiến thuật này. Lối chơi đơn giản, quen thuộc nhưng yếu tố trí tuệ lại rất cao khiến Cờ Caro được rất nhiều người yêu thích, đặc biệt là các bạn học sinh, sinh viên và dân văn phòng. Để bắt đầu thì rất dễ, chỉ cần một tờ giấy và 2 cây bút là có thể chơi được, nhưng để chiến thắng và hiểu hết về nó thì không hề đơn giản.
 
-Trò chơi đòi hỏi tư duy logic chiến thuật. Hai cờ thủ đi lần lượt, bên nào sắp xếp được **5 quân cờ thẳng hàng (ngang, dọc, chéo) trước và KHÔNG BỊ CHẶN HAI ĐẦU** sẽ giành phần thắng. Để giành chiến thắng, bạn cần sở hữu kinh nghiệm, biết cách ra những đòn hiểm hóc, dẫn dụ đối phương. 
+Cờ Caro (Gomoku) từ lâu đã là một trò chơi trí tuệ kinh điển, gắn liền với tuổi thơ và giảng đường của biết bao thế hệ. Chỉ với một tờ giấy và hai chiếc bút, bất kỳ ai cũng có thể dễ dàng bắt đầu một ván cờ. Tuy nhiên, đằng sau sự mộc mạc ấy lại là cả một nghệ thuật tư duy chiến thuật sâu sắc, khiến Caro luôn giữ được sức hút mãnh liệt đối với học sinh, sinh viên và giới văn phòng. Dễ chơi là vậy, nhưng để nắm giữ thế trận và giành chiến thắng lại là một thử thách không hề nhỏ.
 
-Dự án **Đại Chiến Cờ Caro AI** được phát triển nhằm đưa trải nghiệm quen thuộc này lên nền tảng kỹ thuật số, đồng thời tích hợp Trí tuệ nhân tạo (AI) sử dụng thuật toán **Minimax kết hợp Alpha-Beta Pruning**, giúp bạn có những phút giây giải trí rèn luyện IQ hoặc so tài cùng bạn bè!
----
-Chúc bạn có những phút giây vui vẻ!
+Trò chơi là một cuộc đấu trí thực thụ đòi hỏi tư duy logic và tầm nhìn chiến lược. Hai kỳ thủ sẽ luân phiên đặt quân, người chiến thắng là người đầu tiên thiết lập thành công chuỗi **5 quân cờ liên tiếp (ngang, dọc hoặc chéo) và không bị chặn hai đầu**. Để vươn tới chiến thắng, bạn không chỉ cần một phòng tuyến vững chắc mà còn phải biết kiến tạo những đòn đánh hiểm hóc, giăng bẫy và dồn ép đối phương vào thế bí.
+
+Dự án **Đại Chiến Cờ Caro AI** ra đời với mục tiêu số hóa trải nghiệm quen thuộc này, đồng thời mang đến một làn gió mới bằng việc tích hợp Trí tuệ nhân tạo (AI). Hệ thống AI không chỉ đơn thuần là những dòng code, mà đóng vai trò như một kỳ thủ ảo đáng gờm, sẵn sàng thử thách và giúp bạn mài giũa tư duy chiến thuật mỗi ngày.
+
+***
+
+Chúc bạn có những trận đấu thật bùng nổ và những phút giây giải trí tuyệt vời!
 
 ## ✨ Tính năng nổi bật
 
