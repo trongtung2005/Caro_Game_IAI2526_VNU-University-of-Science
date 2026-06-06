@@ -691,8 +691,9 @@ class CaroUI:
                                         r = (pos[1] - self.PADDING) // self.GRID_SIZE
                                         if 0 <= c < self.logic.board_size and 0 <= r < self.logic.board_size:
                                             current_p = self.logic.current_turn
-                                            success, is_win, _ = self.logic.play_move(r, c, current_p)
+                                            success, is_win, move_str = self.logic.play_move(r, c, current_p)
                                             if success: 
+                                                print(f"-> Bạn đi: {move_str}")
                                                 self.play_sfx(self.sound_move)
                                                 self.last_move = (r, c) 
                                                 self.hint_move = None
@@ -754,6 +755,7 @@ class CaroUI:
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 self.add_ripple(pygame.mouse.get_pos())
                                 waiting = False
+                    self.logic.print_pgn_final()
                     break 
 
                 self.draw_ui(screen, font)
