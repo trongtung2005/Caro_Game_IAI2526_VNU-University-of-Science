@@ -62,6 +62,7 @@ class CaroUI:
             self.sound_move = pygame.mixer.Sound("move.mp3")
             self.sound_win = pygame.mixer.Sound("win.mp3")
             self.sound_lose = pygame.mixer.Sound("lose.mp3")
+            self.sound_draw = pygame.mixer.Sound("draw.mp3")
             
             if os.path.exists("click.mp3"):
                 self.sound_click = pygame.mixer.Sound("click.mp3")
@@ -71,7 +72,7 @@ class CaroUI:
                 self.sound_click = None 
                 
         except Exception:
-            self.sound_move = self.sound_win = self.sound_lose = self.sound_click = None
+            self.sound_move = self.sound_win = self.sound_lose = self.sound_draw = self.sound_click = None
 
         try:
             orig_menu_bg = pygame.image.load("menu_bg.png")
@@ -112,7 +113,15 @@ class CaroUI:
         if sound_obj: 
             sound_obj.set_volume(self.vol_sfx)
             sound_obj.play()
-
+    
+    def is_board_full(self):
+        with self.logic.lock:
+            for r in range(self.logic.board_size):
+                for c in range(self.logic.board_size):
+                    if self.logic.board[r][c] == 0:
+                        return False
+        return True
+    
     def get_winning_line(self):
         for r in range(self.logic.board_size):
             for c in range(self.logic.board_size):
@@ -701,7 +710,11 @@ class CaroUI:
                 if not self.game_running or (event.type == pygame.MOUSEBUTTONDOWN and self.btn_home.collidepoint(pygame.mouse.get_pos())):
                     break
 
-                if self.logic.game_over:
+                is_full = self.is_board_full()
+                if self.logic.game_over or is_full:
+                    if is_full and not self.logic.game_over:
+                        self.logic.game_over = True
+                        
                     pygame.mixer.music.stop() 
                     if not self.game_over_processed:
                         self.game_over_processed = True
@@ -719,8 +732,11 @@ class CaroUI:
                                 pygame.display.flip()
                                 time.sleep(0.25)
                             
-                        if self.game_mode == "PvE": self.play_sfx(self.sound_win if self.logic.current_turn == self.player_side else self.sound_lose)
-                        else: self.play_sfx(self.sound_win) 
+                            if self.game_mode == "PvE": self.play_sfx(self.sound_win if self.logic.current_turn == self.player_side else self.sound_lose)
+                            else: self.play_sfx(self.sound_win) 
+                        else:
+                            # Nếu không có win_line mà bàn cờ đầy -> HÒA
+                            self.play_sfx(getattr(self, 'sound_draw', None))
                         
                     self.draw_ui(screen, font)
                     pygame.display.flip()
@@ -729,7 +745,10 @@ class CaroUI:
                     overlay.set_alpha(200); overlay.fill((0, 0, 0))
                     screen.blit(overlay, (0, 0))
                     
-                    if self.game_mode == "PvE":
+                    # XỬ LÝ TEXT THÔNG BÁO DỰA TRÊN KẾT QUẢ
+                    if win_line is None:
+                        msg, color = ("TRẬN ĐẤU HÒA!", (255, 255, 0))
+                    elif self.game_mode == "PvE":
                         msg, color = ("BẠN ĐÃ CHIẾN THẮNG!", (57, 255, 20)) if self.logic.current_turn == self.player_side else ("BẠN THUA RỒI!", (255, 0, 128))
                     elif self.game_mode == "PvP":
                         winner_name = "NGƯỜI 1 (O)" if self.logic.current_turn == -1 else "NGƯỜI 2 (X)"
