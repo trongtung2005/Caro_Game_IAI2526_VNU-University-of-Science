@@ -5,7 +5,7 @@ Trường: **Trường Đại học Khoa học Tự nhiên, ĐHQGHN (VNU-HUS)**
 
 Giảng viên: **CN. Vi Anh Quân, GS. Nguyễn Thế Toàn**
 
-Sinh viên thực hiện: **Lại Huy Hoàng, Tô Quang Hân, Nguyễn Bá Tiến Phát, Nguyễn Trọng Tùng**
+Sinh viên thực hiện: **Lại Huy Hoàng (25%), Tô Quang Hân (25%), Nguyễn Bá Tiến Phát (25%), Nguyễn Trọng Tùng (25%)**
 
 # 🎮 Giới thiệu chung
 
