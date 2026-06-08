@@ -20,12 +20,13 @@ Chúc bạn có những trận đấu thật bùng nổ và những phút giây 
 ## ✨ Tính năng nổi bật
 
 ### 🧠 Trí tuệ nhân tạo (AI)
-* **Thuật toán cốt lõi:** Minimax kết hợp cắt tỉa Alpha-Beta (Alpha-Beta Pruning).
+* **Thuật toán cốt lõi:**Minimax, Minimax + Alpha-Beta Pruning,  Minimax + Alpha-Beta Pruning + Heurictic .
 * **Hàm Heuristic:** Đánh giá thế cờ theo ma trận Công - Thủ tinh vi, AI biết ưu tiên chặn các thế cờ nguy hiểm của người chơi trước khi tấn công.
 * **Đa dạng độ khó:** 3 cấp độ AI (Độ sâu Minimax 1, 2, 3).
 
 ### 🕹️ Chế độ chơi & Tùy biến
-* **3 Chế độ thi đấu:** * 1 Người chơi vs Máy (PvE).
+* **3 Chế độ thi đấu:**
+  * 1 Người chơi vs Máy (PvE).
   * 2 Người chơi (PvP - So tài trực tiếp trên cùng máy).
   * AI đấu với AI (EvE - Quan sát thuật toán tự đấu).
 * **Kích thước bàn cờ:** Lựa chọn linh hoạt giữa `10x10`, `12x12`, và `15x15`.
@@ -33,7 +34,8 @@ Chúc bạn có những trận đấu thật bùng nổ và những phút giây 
 
 ### 🎨 Trải nghiệm người dùng (UX/UI)
 * Giao diện Dark Mode/Cyberpunk hiện đại.
-* **Hiệu ứng đặc biệt:** * *Particle:* Các hạt trôi nổi mượt mà ở màn hình Menu.
+* **Hiệu ứng đặc biệt:**
+  * *Particle:* Các hạt trôi nổi mượt mà ở màn hình Menu.
   * *Ripple:* Hiệu ứng gợn sóng nước sinh động mỗi khi click chuột.
   * *Ghost Piece:* Hiển thị trước quân cờ mờ khi di chuột vào ô trống.
   * *Blinking Win:* Nhấp nháy liên tục đường cờ chiến thắng trong 3 giây.
