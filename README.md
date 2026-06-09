@@ -20,7 +20,7 @@ Chúc bạn có những trận đấu thật bùng nổ và những phút giây 
 ## ✨ Tính năng nổi bật
 
 ### 🧠 Trí tuệ nhân tạo (AI)
-* **Thuật toán cốt lõi:**Minimax, Minimax + Alpha-Beta Pruning,  Minimax + Alpha-Beta Pruning + Heurictic .
+* **Thuật toán cốt lõi:** Minimax, Minimax + Alpha-Beta Pruning,  Minimax + Alpha-Beta Pruning + Heurictic .
 * **Hàm Heuristic:** Đánh giá thế cờ theo ma trận Công - Thủ tinh vi, AI biết ưu tiên chặn các thế cờ nguy hiểm của người chơi trước khi tấn công.
 * **Đa dạng độ khó:** 3 cấp độ AI (Độ sâu Minimax 1, 2, 3).
 
