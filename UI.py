@@ -32,12 +32,25 @@ class CaroUI:
         self.input_buffer = ""
         self.game_running = True
 
+        # --- CẤU HÌNH CƠ BẢN ---
         self.game_mode = "PvE" 
         self.player_side = -1  
         self.bot_side = 1
+        self.pve_heuristic = "LOGISTIC" # Mặc định PvE dùng bộ học máy
         
-        self.ai_1_depth = 1 
+        # --- CẤU HÌNH CHO CHẾ ĐỘ EVE (AI vs AI) ---
+        self.ai_1_algo = "ALPHABETA" 
+        self.ai_2_algo = "ALPHABETA"
+        self.ai_1_depth = 2 
         self.ai_2_depth = 2 
+        self.ai_1_heur = "LOGISTIC"
+        self.ai_2_heur = "MANUAL"
+        
+        # Biến lưu trữ kết quả đánh giá để in ra màn hình
+        self.last_eval_time = 0.0
+        self.last_eval_nodes = 0
+        self.last_eval_name = ""
+        self.last_algo_info = ""
         
         self.last_move = None
         self.hint_move = None 
@@ -161,12 +174,45 @@ class CaroUI:
 
     def terminal_input_loop(self):
         while True:
-            if self.game_running and self.game_mode == "PvE" and not self.logic.game_over and self.logic.current_turn == self.player_side and not self.logic.bot_thinking and not self.is_paused:
+            if self.game_running and self.game_mode == "PvE" and not getattr(self.logic, 'game_over', False) and getattr(self.logic, 'current_turn', None) == self.player_side and not getattr(self.logic, 'bot_thinking', False) and not self.is_paused:
                 try:
                     user_input = input().strip()
                     if user_input: self.input_buffer = user_input
                 except: pass
             time.sleep(0.1)
+
+    # ================= CƠ CHẾ UNDO THÔNG MINH (CHỐNG LỖI RESET) =================
+    def perform_undo(self):
+        if getattr(self.logic, 'game_over', False) or getattr(self.logic, 'bot_thinking', False): 
+            return
+
+        with self.logic.lock:
+            # Chỉ xử lý khi mảng lịch sử đánh cờ có dữ liệu
+            if self.game_mode == "PvP":
+                if len(self.logic.move_history) >= 1:
+                    r, c, player = self.logic.move_history.pop()
+                    self.logic.board[r][c] = 0
+                    if self.logic.pgn_history: self.logic.pgn_history.pop()
+                    
+                    self.logic.current_turn = player # Nhường lại lượt cho người vừa đi
+                    self.last_move = self.hint_move = None
+            elif self.game_mode == "PvE":
+                if len(self.logic.move_history) >= 2:
+                    # Rút nước của Bot
+                    r1, c1, _ = self.logic.move_history.pop()
+                    self.logic.board[r1][c1] = 0
+                    if self.logic.pgn_history: self.logic.pgn_history.pop()
+                    
+                    # Rút nước của Người
+                    r2, c2, player = self.logic.move_history.pop()
+                    self.logic.board[r2][c2] = 0
+                    if self.logic.pgn_history: self.logic.pgn_history.pop()
+                    
+                    self.logic.current_turn = player # Chắc chắn trả về lượt cho người chơi
+                    self.last_move = self.hint_move = None
+                elif len(self.logic.move_history) == 1 and self.logic.current_turn != self.player_side:
+                    # Trường hợp ngoại lệ: Máy đi trước ở nước đầu tiên
+                    pass 
 
     def hint_calculation_worker(self):
         self.logic.bot_thinking = True 
@@ -177,23 +223,41 @@ class CaroUI:
         calc_side = self.player_side if self.game_mode == "PvE" else self.logic.current_turn
         depth = self.logic.bot_depth if self.game_mode == "PvE" else 2 
         
-        _, move = self.logic.minimax(board_copy, depth=depth, alpha=-math.inf, beta=math.inf, maximizing_player=(calc_side == 1))
+        # Bật gợi ý luôn luôn sử dụng bộ số LOGISTIC để cho nước đi tối ưu nhất
+        _, move = self.logic.minimax(board_copy, depth=depth, alpha=-math.inf, beta=math.inf, maximizing_player=(calc_side == 1), heuristic_type="LOGISTIC")
         if move:
             self.hint_move = move
             self.play_sfx(self.sound_move)
             print(f"👉 Trợ giúp: Khuyên bạn nên đánh vào ô {chr(move[1] + ord('A'))}{move[0]+1}!")
         self.logic.bot_thinking = False
 
-    def bot_calculation_worker(self, side, depth):
+    def bot_calculation_worker(self, side, depth, algo="ALPHABETA", heur="LOGISTIC"):
         self.logic.bot_thinking = True
         
         if self.game_mode == "EvE":
-            time.sleep(0.5) 
+            time.sleep(0.1)
             
         with self.logic.lock:
             board_copy = [row[:] for row in self.logic.board]
             
-        _, move = self.logic.minimax(board_copy, depth=depth, alpha=-math.inf, beta=math.inf, maximizing_player=(side == 1))
+        self.logic.nodes_evaluated = 0
+        t0 = time.time()
+        
+        # Truyền chính xác loại Heuristic vào các hàm tìm kiếm của Logic_game
+        if algo == "PURE":
+            score, move = self.logic.pure_minimax(board_copy, maximizing_player=(side == 1))
+        elif algo == "HEURISTIC":
+            score, move = self.logic.minimax_heuristic_only(board_copy, depth, maximizing_player=(side == 1), heuristic_type=heur)
+        else: # ALPHABETA
+            score, move = self.logic.minimax(board_copy, depth, -math.inf, math.inf, maximizing_player=(side == 1), heuristic_type=heur)
+            
+        t1 = time.time()
+        
+        # Cập nhật thông số hiển thị lên UI
+        self.last_eval_time = t1 - t0
+        self.last_eval_nodes = self.logic.nodes_evaluated
+        self.last_eval_name = "AI 1 (O)" if side == -1 else ("AI 2 (X)" if self.game_mode == "EvE" else "AI Máy")
+        self.last_algo_info = f"{algo} | Depth: {depth} | Heur: {heur[:3]}"
         
         if move and not self.logic.game_over and not self.is_paused:
             r, c = move
@@ -203,9 +267,8 @@ class CaroUI:
                 self.last_move = (r, c)
                 self.hint_move = None 
                 
-                bot_name = "Bot O (AI 1)" if side == -1 else "Bot X (AI 2)" if self.game_mode == "EvE" else "Bot Máy"
-                print(f"-> {bot_name} đáp trả: {move_str}")
-                if is_win: print(f"\n[KẾT THÚC] {bot_name.upper()} ĐÃ THẮNG!")
+                print(f"-> {self.last_eval_name} đáp trả: {move_str} ({self.last_algo_info}, Duyệt: {self.last_eval_nodes} nút, Thời gian: {self.last_eval_time:.4f}s)")
+                if is_win: print(f"\n[KẾT THÚC] {self.last_eval_name.upper()} ĐÃ THẮNG!")
         self.logic.bot_thinking = False
 
     def draw_ui(self, screen, font):
@@ -337,6 +400,19 @@ class CaroUI:
         screen.blit(txt_time_o_surf, (self.btn_home.left, text_start_y + 66))
         screen.blit(txt_time_x_surf, (self.btn_home.left, text_start_y + 88))
         
+        # IN KẾT QUẢ ĐÁNH GIÁ THUẬT TOÁN LÊN MÀN HÌNH (CHO EvE VÀ PvE)
+        if self.last_eval_nodes > 0:
+            eval_title_surf = pygame.font.SysFont("tahoma", 12, bold=True).render(f"--- ĐÁNH GIÁ {self.last_eval_name} ---", True, (255, 165, 0))
+            eval_algo_surf = pygame.font.SysFont("tahoma", 11).render(self.last_algo_info, True, (255, 255, 255))
+            eval_node_surf = pygame.font.SysFont("tahoma", 12).render(f"SỐ NÚT: {self.last_eval_nodes:,}", True, (255, 255, 255))
+            eval_time_surf = pygame.font.SysFont("tahoma", 12).render(f"THỜI GIAN: {self.last_eval_time:.3f}s", True, (255, 255, 255))
+            
+            eval_start_y = text_start_y + 115
+            screen.blit(eval_title_surf, (self.btn_home.left - 5, eval_start_y))
+            screen.blit(eval_algo_surf, (self.btn_home.left, eval_start_y + 18))
+            screen.blit(eval_node_surf, (self.btn_home.left, eval_start_y + 34))
+            screen.blit(eval_time_surf, (self.btn_home.left, eval_start_y + 50))
+
         self.draw_ripples(screen)
 
     def show_mode_selection(self, screen, font):
@@ -432,25 +508,57 @@ class CaroUI:
 
     def show_menu(self, screen, font):
         menu_running = True
-        title_font = pygame.font.SysFont("tahoma", 28, bold=True)
-        sub_font = pygame.font.SysFont("tahoma", 18, bold=True)
+        title_font = pygame.font.SysFont("tahoma", 26, bold=True)
+        sub_font = pygame.font.SysFont("tahoma", 16, bold=True)
+        btn_alg_font = pygame.font.SysFont("tahoma", 13, bold=True)
         
         btn_back = pygame.Rect(415, 490, 110, 35) 
-        btn_size_10 = pygame.Rect(100, 120, 100, 45)
-        btn_size_12 = pygame.Rect(220, 120, 100, 45)
-        btn_size_15 = pygame.Rect(340, 120, 100, 45)
         
-        btn_easy = pygame.Rect(100, 230, 100, 45)
-        btn_medium = pygame.Rect(220, 230, 100, 45)
-        btn_hard = pygame.Rect(340, 230, 100, 45)
+        # Row 1: Size
+        btn_size_10 = pygame.Rect(100, 60, 100, 35)
+        btn_size_12 = pygame.Rect(220, 60, 100, 35)
+        btn_size_15 = pygame.Rect(340, 60, 100, 35)
         
-        btn_first_player = pygame.Rect(120, 340, 130, 45)
-        btn_first_bot = pygame.Rect(290, 340, 130, 45)
-        btn_ai2_easy = pygame.Rect(100, 340, 100, 45)
-        btn_ai2_medium = pygame.Rect(220, 340, 100, 45)
-        btn_ai2_hard = pygame.Rect(340, 340, 100, 45)
+        # === NÚT CHO CHẾ ĐỘ PVE ===
+        btn_easy = pygame.Rect(90, 135, 70, 35)
+        btn_medium = pygame.Rect(170, 135, 70, 35)
+        btn_hard = pygame.Rect(250, 135, 70, 35)
+        btn_very_hard = pygame.Rect(330, 135, 120, 35)
+        
+        btn_first_player = pygame.Rect(120, 210, 130, 35)
+        btn_first_bot = pygame.Rect(290, 210, 130, 35)
+        
+        btn_heur_manual = pygame.Rect(120, 285, 130, 35)
+        btn_heur_log = pygame.Rect(290, 285, 130, 35)
+        
+        # === NÚT CHO CHẾ ĐỘ EVE ===
+        y_ai1 = 120
+        btn_a1_pure = pygame.Rect(90, y_ai1 + 25, 100, 30)
+        btn_a1_heur = pygame.Rect(210, y_ai1 + 25, 100, 30)
+        btn_a1_ab = pygame.Rect(330, y_ai1 + 25, 120, 30)
+        
+        btn_d1_1 = pygame.Rect(90, y_ai1 + 65, 45, 30)
+        btn_d1_2 = pygame.Rect(145, y_ai1 + 65, 45, 30)
+        btn_d1_3 = pygame.Rect(200, y_ai1 + 65, 45, 30)
+        btn_d1_4 = pygame.Rect(255, y_ai1 + 65, 45, 30)
+        
+        btn_h1_man = pygame.Rect(315, y_ai1 + 65, 60, 30)
+        btn_h1_log = pygame.Rect(385, y_ai1 + 65, 80, 30)
 
-        btn_start = pygame.Rect(170, 440, 200, 55)
+        y_ai2 = 240
+        btn_a2_pure = pygame.Rect(90, y_ai2 + 25, 100, 30)
+        btn_a2_heur = pygame.Rect(210, y_ai2 + 25, 100, 30)
+        btn_a2_ab = pygame.Rect(330, y_ai2 + 25, 120, 30)
+        
+        btn_d2_1 = pygame.Rect(90, y_ai2 + 65, 45, 30)
+        btn_d2_2 = pygame.Rect(145, y_ai2 + 65, 45, 30)
+        btn_d2_3 = pygame.Rect(200, y_ai2 + 65, 45, 30)
+        btn_d2_4 = pygame.Rect(255, y_ai2 + 65, 45, 30)
+        
+        btn_h2_man = pygame.Rect(315, y_ai2 + 65, 60, 30)
+        btn_h2_log = pygame.Rect(385, y_ai2 + 65, 80, 30)
+
+        btn_start = pygame.Rect(170, 440, 200, 50)
         clock = pygame.time.Clock()
 
         while menu_running:
@@ -465,9 +573,10 @@ class CaroUI:
             txt_back = font.render("<- QUAY LẠI", True, (255,255,255))
             screen.blit(txt_back, (btn_back.centerx - txt_back.get_width()//2, btn_back.centery - txt_back.get_height()//2))
 
-            screen.blit(title_font.render("CẤU HÌNH TRẬN ĐẤU", True, (0, 255, 255)), (screen.get_width() // 2 - 140, 30))
+            screen.blit(title_font.render("CẤU HÌNH TRẬN ĐẤU", True, (0, 255, 255)), (screen.get_width() // 2 - 130, 10))
 
-            screen.blit(sub_font.render("1. Kích thước bàn cờ:", True, self.COLOR_TEXT), (60, 80))
+            # Render Kích thước bàn cờ
+            screen.blit(sub_font.render("1. Kích thước bàn cờ:", True, self.COLOR_TEXT), (60, 40))
             pygame.draw.rect(screen, (255, 0, 128) if self.logic.board_size == 10 else (80, 80, 80), btn_size_10, border_radius=6)
             pygame.draw.rect(screen, (255, 0, 128) if self.logic.board_size == 12 else (80, 80, 80), btn_size_12, border_radius=6)
             pygame.draw.rect(screen, (255, 0, 128) if self.logic.board_size == 15 else (80, 80, 80), btn_size_15, border_radius=6)
@@ -476,40 +585,77 @@ class CaroUI:
             screen.blit(font.render("15 x 15", True, (255,255,255)), (btn_size_15.centerx-25, btn_size_15.centery-10))
 
             if self.game_mode == "PvE":
-                screen.blit(sub_font.render("2. Trí tuệ AI (Độ khó):", True, self.COLOR_TEXT), (60, 190))
+                # Render Độ Sâu (Có thêm độ sâu 4)
+                screen.blit(sub_font.render("2. Trí tuệ AI (Độ sâu):", True, self.COLOR_TEXT), (60, 110))
                 pygame.draw.rect(screen, (46, 204, 113) if self.logic.bot_depth == 1 else (80, 80, 80), btn_easy, border_radius=6)
                 pygame.draw.rect(screen, (241, 196, 15) if self.logic.bot_depth == 2 else (80, 80, 80), btn_medium, border_radius=6)
                 pygame.draw.rect(screen, (231, 76, 60) if self.logic.bot_depth == 3 else (80, 80, 80), btn_hard, border_radius=6)
-                screen.blit(font.render("DỄ", True, (255,255,255)), (btn_easy.centerx-10, btn_easy.centery-10))
-                screen.blit(font.render("VỪA", True, (255,255,255)), (btn_medium.centerx-15, btn_medium.centery-10))
-                screen.blit(font.render("KHÓ", True, (255,255,255)), (btn_hard.centerx-12, btn_hard.centery-10))
+                pygame.draw.rect(screen, (155, 89, 182) if self.logic.bot_depth == 4 else (80, 80, 80), btn_very_hard, border_radius=6)
+                screen.blit(font.render("DỄ (1)", True, (255,255,255)), (btn_easy.centerx-18, btn_easy.centery-10))
+                screen.blit(font.render("VỪA (2)", True, (255,255,255)), (btn_medium.centerx-22, btn_medium.centery-10))
+                screen.blit(font.render("KHÓ (3)", True, (255,255,255)), (btn_hard.centerx-20, btn_hard.centery-10))
+                screen.blit(font.render("SIÊU KHÓ (4)", True, (255,255,255)), (btn_very_hard.centerx-40, btn_very_hard.centery-10))
 
-                screen.blit(sub_font.render("3. Quyền đi trước (Luôn cầm O):", True, self.COLOR_TEXT), (60, 300))
+                # Render Quyền đi trước
+                screen.blit(sub_font.render("3. Quyền đi trước (Luôn cầm O):", True, self.COLOR_TEXT), (60, 185))
                 pygame.draw.rect(screen, (0, 255, 255) if self.player_side == -1 else (80, 80, 80), btn_first_player, border_radius=6)
                 pygame.draw.rect(screen, (0, 255, 255) if self.bot_side == -1 else (80, 80, 80), btn_first_bot, border_radius=6)
                 screen.blit(font.render("NGƯỜI (O)", True, (0,0,0) if self.player_side == -1 else (255,255,255)), (btn_first_player.centerx-35, btn_first_player.centery-10))
                 screen.blit(font.render("MÁY (O)", True, (0,0,0) if self.bot_side == -1 else (255,255,255)), (btn_first_bot.centerx-30, btn_first_bot.centery-10))
+                
+                # Render Chọn Bộ Điểm (Heuristic Type)
+                screen.blit(sub_font.render("4. Kiểu tư duy (Bộ điểm Heuristic):", True, self.COLOR_TEXT), (60, 260))
+                pygame.draw.rect(screen, (241, 196, 15) if self.pve_heuristic == "MANUAL" else (80, 80, 80), btn_heur_manual, border_radius=6)
+                pygame.draw.rect(screen, (46, 204, 113) if self.pve_heuristic == "LOGISTIC" else (80, 80, 80), btn_heur_log, border_radius=6)
+                screen.blit(font.render("BẰNG TAY", True, (0,0,0) if self.pve_heuristic == "MANUAL" else (255,255,255)), (btn_heur_manual.centerx-35, btn_heur_manual.centery-10))
+                screen.blit(font.render("LOGISTIC", True, (0,0,0) if self.pve_heuristic == "LOGISTIC" else (255,255,255)), (btn_heur_log.centerx-30, btn_heur_log.centery-10))
             
             elif self.game_mode == "EvE":
-                screen.blit(sub_font.render("2. Độ khó AI 1 (Cầm O - Đi trước):", True, self.COLOR_O), (60, 190))
-                pygame.draw.rect(screen, (46, 204, 113) if self.ai_1_depth == 1 else (80, 80, 80), btn_easy, border_radius=6)
-                pygame.draw.rect(screen, (241, 196, 15) if self.ai_1_depth == 2 else (80, 80, 80), btn_medium, border_radius=6)
-                pygame.draw.rect(screen, (231, 76, 60) if self.ai_1_depth == 3 else (80, 80, 80), btn_hard, border_radius=6)
-                screen.blit(font.render("DỄ", True, (255,255,255)), (btn_easy.centerx-10, btn_easy.centery-10))
-                screen.blit(font.render("VỪA", True, (255,255,255)), (btn_medium.centerx-15, btn_medium.centery-10))
-                screen.blit(font.render("KHÓ", True, (255,255,255)), (btn_hard.centerx-12, btn_hard.centery-10))
+                # AI 1
+                screen.blit(sub_font.render("2. AI 1 (Cầm O - Đi trước):", True, self.COLOR_O), (60, y_ai1))
+                pygame.draw.rect(screen, (155, 89, 182) if self.ai_1_algo == "PURE" else (80, 80, 80), btn_a1_pure, border_radius=5)
+                pygame.draw.rect(screen, (52, 152, 219) if self.ai_1_algo == "HEURISTIC" else (80, 80, 80), btn_a1_heur, border_radius=5)
+                pygame.draw.rect(screen, (46, 204, 113) if self.ai_1_algo == "ALPHABETA" else (80, 80, 80), btn_a1_ab, border_radius=5)
+                screen.blit(btn_alg_font.render("PURE", True, (255,255,255)), (btn_a1_pure.centerx-15, btn_a1_pure.centery-8))
+                screen.blit(btn_alg_font.render("HEURISTIC", True, (255,255,255)), (btn_a1_heur.centerx-32, btn_a1_heur.centery-8))
+                screen.blit(btn_alg_font.render("ALPHA-BETA", True, (255,255,255)), (btn_a1_ab.centerx-38, btn_a1_ab.centery-8))
+                
+                # Depth Buttons
+                for btn, d in zip([btn_d1_1, btn_d1_2, btn_d1_3, btn_d1_4], [1, 2, 3, 4]):
+                    pygame.draw.rect(screen, (241, 196, 15) if self.ai_1_depth == d else (60, 60, 60), btn, border_radius=5)
+                    tc = (0,0,0) if self.ai_1_depth == d else (255,255,255)
+                    screen.blit(btn_alg_font.render(f"D={d}", True, tc), (btn.centerx-12, btn.centery-8))
+                
+                # Heuristic Buttons
+                pygame.draw.rect(screen, (231, 76, 60) if self.ai_1_heur == "MANUAL" else (60, 60, 60), btn_h1_man, border_radius=5)
+                pygame.draw.rect(screen, (46, 204, 113) if self.ai_1_heur == "LOGISTIC" else (60, 60, 60), btn_h1_log, border_radius=5)
+                screen.blit(btn_alg_font.render("TAY", True, (255,255,255)), (btn_h1_man.centerx-12, btn_h1_man.centery-8))
+                screen.blit(btn_alg_font.render("LOGISTIC", True, (255,255,255)), (btn_h1_log.centerx-30, btn_h1_log.centery-8))
 
-                screen.blit(sub_font.render("3. Độ khó AI 2 (Cầm X - Đi sau):", True, self.COLOR_X), (60, 300))
-                pygame.draw.rect(screen, (46, 204, 113) if self.ai_2_depth == 1 else (80, 80, 80), btn_ai2_easy, border_radius=6)
-                pygame.draw.rect(screen, (241, 196, 15) if self.ai_2_depth == 2 else (80, 80, 80), btn_ai2_medium, border_radius=6)
-                pygame.draw.rect(screen, (231, 76, 60) if self.ai_2_depth == 3 else (80, 80, 80), btn_ai2_hard, border_radius=6)
-                screen.blit(font.render("DỄ", True, (255,255,255)), (btn_ai2_easy.centerx-10, btn_ai2_easy.centery-10))
-                screen.blit(font.render("VỪA", True, (255,255,255)), (btn_ai2_medium.centerx-15, btn_ai2_medium.centery-10))
-                screen.blit(font.render("KHÓ", True, (255,255,255)), (btn_ai2_hard.centerx-12, btn_ai2_hard.centery-10))
+                # AI 2
+                screen.blit(sub_font.render("3. AI 2 (Cầm X - Đi sau):", True, self.COLOR_X), (60, y_ai2))
+                pygame.draw.rect(screen, (155, 89, 182) if self.ai_2_algo == "PURE" else (80, 80, 80), btn_a2_pure, border_radius=5)
+                pygame.draw.rect(screen, (52, 152, 219) if self.ai_2_algo == "HEURISTIC" else (80, 80, 80), btn_a2_heur, border_radius=5)
+                pygame.draw.rect(screen, (46, 204, 113) if self.ai_2_algo == "ALPHABETA" else (80, 80, 80), btn_a2_ab, border_radius=5)
+                screen.blit(btn_alg_font.render("PURE", True, (255,255,255)), (btn_a2_pure.centerx-15, btn_a2_pure.centery-8))
+                screen.blit(btn_alg_font.render("HEURISTIC", True, (255,255,255)), (btn_a2_heur.centerx-32, btn_a2_heur.centery-8))
+                screen.blit(btn_alg_font.render("ALPHA-BETA", True, (255,255,255)), (btn_a2_ab.centerx-38, btn_a2_ab.centery-8))
+                
+                # Depth Buttons
+                for btn, d in zip([btn_d2_1, btn_d2_2, btn_d2_3, btn_d2_4], [1, 2, 3, 4]):
+                    pygame.draw.rect(screen, (241, 196, 15) if self.ai_2_depth == d else (60, 60, 60), btn, border_radius=5)
+                    tc = (0,0,0) if self.ai_2_depth == d else (255,255,255)
+                    screen.blit(btn_alg_font.render(f"D={d}", True, tc), (btn.centerx-12, btn.centery-8))
+                    
+                # Heuristic Buttons
+                pygame.draw.rect(screen, (231, 76, 60) if self.ai_2_heur == "MANUAL" else (60, 60, 60), btn_h2_man, border_radius=5)
+                pygame.draw.rect(screen, (46, 204, 113) if self.ai_2_heur == "LOGISTIC" else (60, 60, 60), btn_h2_log, border_radius=5)
+                screen.blit(btn_alg_font.render("TAY", True, (255,255,255)), (btn_h2_man.centerx-12, btn_h2_man.centery-8))
+                screen.blit(btn_alg_font.render("LOGISTIC", True, (255,255,255)), (btn_h2_log.centerx-30, btn_h2_log.centery-8))
             
             elif self.game_mode == "PvP":
-                screen.blit(sub_font.render("2. Chế độ PvP: Người vs Người", True, (155, 89, 182)), (60, 220))
-                screen.blit(font.render("Người 1 cầm O (Đi trước), Người 2 cầm X (Đi sau)", True, (255, 255, 255)), (60, 260))
+                screen.blit(sub_font.render("2. Chế độ PvP: Người vs Người", True, (155, 89, 182)), (60, 200))
+                screen.blit(font.render("Người 1 cầm O (Đi trước), Người 2 cầm X (Đi sau)", True, (255, 255, 255)), (60, 240))
 
             pygame.draw.rect(screen, (0, 255, 255), btn_start, border_radius=10)
             text_start = sub_font.render("BẮT ĐẦU TRẬN", True, (0, 0, 0))
@@ -544,16 +690,34 @@ class CaroUI:
                         if btn_easy.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 1
                         elif btn_medium.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 2
                         elif btn_hard.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 3
+                        elif btn_very_hard.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 4
                         elif btn_first_player.collidepoint(pos): self.play_sfx(self.sound_click); self.player_side = -1; self.bot_side = 1
                         elif btn_first_bot.collidepoint(pos): self.play_sfx(self.sound_click); self.player_side = 1; self.bot_side = -1
+                        elif btn_heur_manual.collidepoint(pos): self.play_sfx(self.sound_click); self.pve_heuristic = "MANUAL"
+                        elif btn_heur_log.collidepoint(pos): self.play_sfx(self.sound_click); self.pve_heuristic = "LOGISTIC"
                     
                     elif self.game_mode == "EvE":
-                        if btn_easy.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 1
-                        elif btn_medium.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 2
-                        elif btn_hard.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 3
-                        elif btn_ai2_easy.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 1
-                        elif btn_ai2_medium.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 2
-                        elif btn_ai2_hard.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 3
+                        # AI 1 Configs
+                        if btn_a1_pure.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_algo = "PURE"
+                        elif btn_a1_heur.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_algo = "HEURISTIC"
+                        elif btn_a1_ab.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_algo = "ALPHABETA"
+                        elif btn_d1_1.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 1
+                        elif btn_d1_2.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 2
+                        elif btn_d1_3.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 3
+                        elif btn_d1_4.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 4
+                        elif btn_h1_man.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_heur = "MANUAL"
+                        elif btn_h1_log.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_heur = "LOGISTIC"
+                        
+                        # AI 2 Configs
+                        elif btn_a2_pure.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_algo = "PURE"
+                        elif btn_a2_heur.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_algo = "HEURISTIC"
+                        elif btn_a2_ab.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_algo = "ALPHABETA"
+                        elif btn_d2_1.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 1
+                        elif btn_d2_2.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 2
+                        elif btn_d2_3.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 3
+                        elif btn_d2_4.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 4
+                        elif btn_h2_man.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_heur = "MANUAL"
+                        elif btn_h2_log.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_heur = "LOGISTIC"
 
     def run(self):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -582,9 +746,9 @@ class CaroUI:
                 if self.show_menu(screen, font) == "START": break 
             
             board_width = self.logic.board_size * self.GRID_SIZE + (self.PADDING * 2)
-            panel_width = 160
+            panel_width = 190 # Nới rộng panel ra một chút để in thông số Heuristic
             window_width = board_width + panel_width
-            window_height = board_width 
+            window_height = board_width if board_width > 500 else 500
             
             screen = pygame.display.set_mode((window_width, window_height))
             if self.orig_bg_image: self.scaled_game_bg = pygame.transform.scale(self.orig_bg_image, (window_width, window_height))
@@ -607,6 +771,12 @@ class CaroUI:
             self.logic.current_turn = -1 
             self.last_move = self.hint_move = None
             
+            # Reset thông số in ra màn hình
+            self.last_eval_time = 0.0
+            self.last_eval_nodes = 0
+            self.last_eval_name = ""
+            self.last_algo_info = ""
+            
             self.total_time = 0.0
             self.time_O = 0.0
             self.time_X = 0.0
@@ -620,7 +790,7 @@ class CaroUI:
 
             while self.game_running:
                 current_time = time.time()
-                if not self.is_paused and not self.logic.game_over:
+                if not self.is_paused and not getattr(self.logic, 'game_over', False):
                     delta = current_time - self.last_frame_time
                     self.total_time += delta
                     if self.logic.current_turn == -1: self.time_O += delta
@@ -628,19 +798,22 @@ class CaroUI:
                 self.last_frame_time = current_time
 
                 if self.game_mode == "PvE" and not self.is_paused:
-                    if self.logic.current_turn == self.bot_side and not self.logic.game_over and not self.logic.bot_thinking:
-                        threading.Thread(target=self.bot_calculation_worker, args=(self.bot_side, self.logic.bot_depth), daemon=True).start()
+                    if getattr(self.logic, 'current_turn', None) == self.bot_side and not getattr(self.logic, 'game_over', False) and not getattr(self.logic, 'bot_thinking', False):
+                        threading.Thread(target=self.bot_calculation_worker, args=(self.bot_side, self.logic.bot_depth, "ALPHABETA", self.pve_heuristic), daemon=True).start()
+                
                 elif self.game_mode == "EvE" and not self.is_paused:
-                    if not self.logic.game_over and not self.logic.bot_thinking:
+                    if not getattr(self.logic, 'game_over', False) and not getattr(self.logic, 'bot_thinking', False):
                         current_side = self.logic.current_turn
                         current_depth = self.ai_1_depth if current_side == -1 else self.ai_2_depth
-                        threading.Thread(target=self.bot_calculation_worker, args=(current_side, current_depth), daemon=True).start()
+                        current_algo = self.ai_1_algo if current_side == -1 else self.ai_2_algo
+                        current_heur = self.ai_1_heur if current_side == -1 else self.ai_2_heur
+                        threading.Thread(target=self.bot_calculation_worker, args=(current_side, current_depth, current_algo, current_heur), daemon=True).start()
 
-                if self.game_mode == "PvE" and self.logic.current_turn == self.player_side and self.input_buffer != "" and not self.is_paused:
+                if self.game_mode == "PvE" and getattr(self.logic, 'current_turn', None) == self.player_side and self.input_buffer != "" and not self.is_paused:
                     cmd = self.input_buffer.upper()
                     self.input_buffer = ""
                     if cmd == 'U':
-                        if self.logic.undo_move(): self.last_move = self.hint_move = None 
+                        self.perform_undo()
                     elif cmd == 'R':
                         self.logic.reset_game(); self.logic.current_turn = -1
                         self.last_move = self.hint_move = None
@@ -656,9 +829,9 @@ class CaroUI:
                     if event.type == pygame.QUIT:
                         self.logic.print_pgn_final(); pygame.quit(); sys.exit()
 
-                    if event.type == pygame.KEYDOWN and not self.is_paused and not self.logic.bot_thinking:
+                    if event.type == pygame.KEYDOWN and not self.is_paused and not getattr(self.logic, 'bot_thinking', False):
                         if event.key == pygame.K_u and self.game_mode in ["PvE", "PvP"]: 
-                            if self.logic.undo_move(): self.last_move = self.hint_move = None
+                            self.perform_undo()
                         elif event.key == pygame.K_r:
                             self.logic.reset_game(); self.logic.current_turn = -1
                             self.last_move = self.hint_move = None
@@ -667,33 +840,34 @@ class CaroUI:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                         pos = pygame.mouse.get_pos()
                         
-                        if pos[0] >= board_width or self.logic.game_over:
+                        if pos[0] >= board_width or getattr(self.logic, 'game_over', False):
                             self.add_ripple(pos)
                         
                         if self.btn_home.collidepoint(pos):
                             self.play_sfx(self.sound_click)
                             break 
                         
-                        if self.btn_pause.collidepoint(pos) and not self.logic.game_over:
+                        if self.btn_pause.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
                             self.play_sfx(self.sound_click)
                             self.is_paused = not self.is_paused
                         
-                        if not self.is_paused and not self.logic.bot_thinking:
+                        if not self.is_paused and not getattr(self.logic, 'bot_thinking', False):
                             if self.btn_reset.collidepoint(pos):
                                 self.play_sfx(self.sound_click)
                                 self.logic.reset_game(); self.logic.current_turn = -1
                                 self.last_move = self.hint_move = None
+                                self.last_eval_nodes = 0 
                                 self.total_time = self.time_O = self.time_X = 0.0
                                 
                             if self.game_mode in ["PvE", "PvP"]:
-                                if self.btn_undo.collidepoint(pos) and not self.logic.game_over:
+                                if self.btn_undo.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
                                     self.play_sfx(self.sound_click)
-                                    if self.logic.undo_move(): self.last_move = self.hint_move = None
-                                elif self.btn_hint.collidepoint(pos) and not self.logic.game_over:
+                                    self.perform_undo()
+                                elif self.btn_hint.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
                                     self.play_sfx(self.sound_click)
                                     threading.Thread(target=self.hint_calculation_worker, daemon=True).start()
                                 
-                                elif not self.logic.game_over and pos[0] < board_width:
+                                elif not getattr(self.logic, 'game_over', False) and pos[0] < board_width:
                                     is_valid_turn = (self.game_mode == "PvP") or (self.game_mode == "PvE" and self.logic.current_turn == self.player_side)
                                     if is_valid_turn:
                                         c = (pos[0] - self.PADDING) // self.GRID_SIZE
@@ -711,8 +885,8 @@ class CaroUI:
                     break
 
                 is_full = self.is_board_full()
-                if self.logic.game_over or is_full:
-                    if is_full and not self.logic.game_over:
+                if getattr(self.logic, 'game_over', False) or is_full:
+                    if is_full and not getattr(self.logic, 'game_over', False):
                         self.logic.game_over = True
                         
                     pygame.mixer.music.stop() 
@@ -735,7 +909,6 @@ class CaroUI:
                             if self.game_mode == "PvE": self.play_sfx(self.sound_win if self.logic.current_turn == self.player_side else self.sound_lose)
                             else: self.play_sfx(self.sound_win) 
                         else:
-                            # Nếu không có win_line mà bàn cờ đầy -> HÒA
                             self.play_sfx(getattr(self, 'sound_draw', None))
                         
                     self.draw_ui(screen, font)
@@ -745,7 +918,6 @@ class CaroUI:
                     overlay.set_alpha(200); overlay.fill((0, 0, 0))
                     screen.blit(overlay, (0, 0))
                     
-                    # XỬ LÝ TEXT THÔNG BÁO DỰA TRÊN KẾT QUẢ
                     if win_line is None:
                         msg, color = ("TRẬN ĐẤU HÒA!", (255, 255, 0))
                     elif self.game_mode == "PvE":
