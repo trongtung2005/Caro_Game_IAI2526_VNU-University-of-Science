@@ -408,10 +408,14 @@ class CaroUI:
             eval_time_surf = pygame.font.SysFont("tahoma", 12).render(f"THỜI GIAN: {self.last_eval_time:.3f}s", True, (255, 255, 255))
             
             eval_start_y = text_start_y + 115
-            screen.blit(eval_title_surf, (self.btn_home.left - 5, eval_start_y))
-            screen.blit(eval_algo_surf, (self.btn_home.left, eval_start_y + 18))
-            screen.blit(eval_node_surf, (self.btn_home.left, eval_start_y + 34))
-            screen.blit(eval_time_surf, (self.btn_home.left, eval_start_y + 50))
+
+            # Dịch tọa độ sang trái 25 pixel để các dòng chữ dài nằm cân đối giữa Panel
+            align_x = self.btn_home.left - 25
+            
+            screen.blit(eval_title_surf, (align_x - 5, eval_start_y))
+            screen.blit(eval_algo_surf, (align_x, eval_start_y + 18))
+            screen.blit(eval_node_surf, (align_x, eval_start_y + 34))
+            screen.blit(eval_time_surf, (align_x, eval_start_y + 50))
 
         self.draw_ripples(screen)
         
@@ -519,21 +523,21 @@ class CaroUI:
         btn_back = pygame.Rect(415, 490, 110, 35) 
         
         # Row 1: Size
-        btn_size_10 = pygame.Rect(100, 60, 100, 35)
-        btn_size_12 = pygame.Rect(220, 60, 100, 35)
-        btn_size_15 = pygame.Rect(340, 60, 100, 35)
+        btn_size_10 = pygame.Rect(100, 65, 100, 35)
+        btn_size_12 = pygame.Rect(220, 65, 100, 35)
+        btn_size_15 = pygame.Rect(340, 65, 100, 35)
         
         # === NÚT CHO CHẾ ĐỘ PVE ===
-        btn_easy = pygame.Rect(90, 135, 70, 35)
-        btn_medium = pygame.Rect(170, 135, 70, 35)
-        btn_hard = pygame.Rect(250, 135, 70, 35)
-        btn_very_hard = pygame.Rect(330, 135, 120, 35)
+        btn_easy = pygame.Rect(90, 140, 70, 35)
+        btn_medium = pygame.Rect(170, 140, 70, 35)
+        btn_hard = pygame.Rect(250, 140, 70, 35)
+        btn_very_hard = pygame.Rect(330, 140, 120, 35)
         
-        btn_first_player = pygame.Rect(120, 210, 130, 35)
-        btn_first_bot = pygame.Rect(290, 210, 130, 35)
+        btn_first_player = pygame.Rect(120, 215, 130, 35)
+        btn_first_bot = pygame.Rect(290, 215, 130, 35)
         
-        btn_heur_manual = pygame.Rect(120, 285, 130, 35)
-        btn_heur_log = pygame.Rect(290, 285, 130, 35)
+        btn_heur_manual = pygame.Rect(120, 290, 130, 35)
+        btn_heur_log = pygame.Rect(290, 290, 130, 35)
         
         # === NÚT CHO CHẾ ĐỘ EVE ===
         y_ai1 = 120
