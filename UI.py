@@ -846,49 +846,49 @@ class CaroUI:
                             self.last_move = self.hint_move = None
                             self.total_time = self.time_O = self.time_X = 0.0
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                        pos = pygame.mouse.get_pos()
-                        
-                        if pos[0] >= board_width or getattr(self.logic, 'game_over', False):
-                            self.add_ripple(pos)
-                        
-                        if self.btn_home.collidepoint(pos):
-                            self.play_sfx(self.sound_click)
-                            break 
-                        
-                        if self.btn_pause.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
-                            self.play_sfx(self.sound_click)
-                            self.is_paused = not self.is_paused
-                        
-                        if not self.is_paused and not getattr(self.logic, 'bot_thinking', False):
-                            if self.btn_reset.collidepoint(pos):
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                            pos = pygame.mouse.get_pos()
+                            
+                            if pos[0] >= board_width or getattr(self.logic, 'game_over', False):
+                                self.add_ripple(pos)
+                            
+                            if self.btn_home.collidepoint(pos):
                                 self.play_sfx(self.sound_click)
-                                self.logic.reset_game(); self.logic.current_turn = -1
-                                self.last_move = self.hint_move = None
-                                self.last_eval_nodes = 0 
-                                self.total_time = self.time_O = self.time_X = 0.0
-                                
-                            if self.game_mode in ["PvE", "PvP"]:
-                                if self.btn_undo.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
+                                break 
+                            
+                            if self.btn_pause.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
+                                self.play_sfx(self.sound_click)
+                                self.is_paused = not self.is_paused
+                            
+                            if not self.is_paused and not getattr(self.logic, 'bot_thinking', False):
+                                if self.btn_reset.collidepoint(pos):
                                     self.play_sfx(self.sound_click)
-                                    self.perform_undo()
-                                elif self.btn_hint.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
-                                    self.play_sfx(self.sound_click)
-                                    threading.Thread(target=self.hint_calculation_worker, daemon=True).start()
-                                
-                                elif not getattr(self.logic, 'game_over', False) and pos[0] < board_width:
-                                    is_valid_turn = (self.game_mode == "PvP") or (self.game_mode == "PvE" and self.logic.current_turn == self.player_side)
-                                    if is_valid_turn:
-                                        c = (pos[0] - self.PADDING) // self.GRID_SIZE
-                                        r = (pos[1] - self.PADDING) // self.GRID_SIZE
-                                        if 0 <= c < self.logic.board_size and 0 <= r < self.logic.board_size:
-                                            current_p = self.logic.current_turn
-                                            success, is_win, move_str = self.logic.play_move(r, c, current_p)
-                                            if success: 
-                                                print(f"-> Bạn đi: {move_str}")
-                                                self.play_sfx(self.sound_move)
-                                                self.last_move = (r, c) 
-                                                self.hint_move = None
+                                    self.logic.reset_game(); self.logic.current_turn = -1
+                                    self.last_move = self.hint_move = None
+                                    self.last_eval_nodes = 0 
+                                    self.total_time = self.time_O = self.time_X = 0.0
+                                    
+                                if self.game_mode in ["PvE", "PvP"]:
+                                    if self.btn_undo.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
+                                        self.play_sfx(self.sound_click)
+                                        self.perform_undo()
+                                    elif self.btn_hint.collidepoint(pos) and not getattr(self.logic, 'game_over', False):
+                                        self.play_sfx(self.sound_click)
+                                        threading.Thread(target=self.hint_calculation_worker, daemon=True).start()
+                                    
+                                    elif not getattr(self.logic, 'game_over', False) and pos[0] < board_width:
+                                        is_valid_turn = (self.game_mode == "PvP") or (self.game_mode == "PvE" and self.logic.current_turn == self.player_side)
+                                        if is_valid_turn:
+                                            c = (pos[0] - self.PADDING) // self.GRID_SIZE
+                                            r = (pos[1] - self.PADDING) // self.GRID_SIZE
+                                            if 0 <= c < self.logic.board_size and 0 <= r < self.logic.board_size:
+                                                current_p = self.logic.current_turn
+                                                success, is_win, move_str = self.logic.play_move(r, c, current_p)
+                                                if success: 
+                                                    print(f"-> Bạn đi: {move_str}")
+                                                    self.play_sfx(self.sound_move)
+                                                    self.last_move = (r, c) 
+                                                    self.hint_move = None
 
                 if not self.game_running or (event.type == pygame.MOUSEBUTTONDOWN and self.btn_home.collidepoint(pygame.mouse.get_pos())):
                     break
