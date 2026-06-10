@@ -239,33 +239,53 @@ class CaroLogic:
         move_list.sort(key=lambda m: abs(m[0]-self.board_size//2) + abs(m[1]-self.board_size//2))
         return move_list[:30] if self.bot_depth == 2 else move_list
 
-    def pure_minimax(self, board_state, maximizing_player):
+    import math
+
+    def pure_minimax(self, board_state, depth, maximizing_player):
         self.nodes_evaluated += 1
-        
+    
+        # 1. Trạng thái kết thúc: Trả về 1 hoặc -1 nếu có người thắng cuộc rõ ràng
         if self.check_win(board_state, 1): return 1, None
         if self.check_win(board_state, -1): return -1, None
+    
+        # 2. ĐẠT GIỚI HẠN ĐỘ SÂU: Trả về 0 (Coi như hòa/trung lập), QUYẾT KHÔNG DÙNG HEURISTIC
+        if depth == 0: 
+           return 0, None
         
+        # 3. Bàn cờ đầy (Hòa cờ thực sự)
         is_full = all(board_state[r][c] != 0 for r in range(self.board_size) for c in range(self.board_size))
         if is_full: return 0, None
 
+      # Lấy danh sách các nước đi tiềm năng
         moves = self.get_interesting_moves(board_state) 
         best_move = None
 
+    # Lượt của AI (Tìm giá trị Max)
         if maximizing_player:
             max_eval = -math.inf
             for r, c in moves:
-                board_state[r][c] = 1
-                evaluation, _ = self.pure_minimax(board_state, False)
-                board_state[r][c] = 0
-                if evaluation > max_eval: max_eval = evaluation; best_move = (r, c)
+                board_state[r][c] = 1  # Thử nước đi
+                # Truyền depth - 1 vào đệ quy
+                evaluation, _ = self.pure_minimax(board_state, depth - 1, False)
+                board_state[r][c] = 0  # Trả lại trạng thái bàn cờ (Backtracking)
+            
+                if evaluation > max_eval: 
+                    max_eval = evaluation
+                    best_move = (r, c)
             return max_eval, best_move
+        
+    # Lượt của người chơi (Tìm giá trị Min)
         else:
             min_eval = math.inf
             for r, c in moves:
-                board_state[r][c] = -1
-                evaluation, _ = self.pure_minimax(board_state, True)
-                board_state[r][c] = 0
-                if evaluation < min_eval: min_eval = evaluation; best_move = (r, c)
+                board_state[r][c] = -1 # Thử nước đi
+            # Truyền depth - 1 vào đệ quy
+                evaluation, _ = self.pure_minimax(board_state, depth - 1, True)
+                board_state[r][c] = 0  # Trả lại trạng thái bàn cờ (Backtracking)
+            
+                if evaluation < min_eval: 
+                    min_eval = evaluation
+                    best_move = (r, c)
             return min_eval, best_move
 
     def minimax_heuristic_only(self, board_state, depth, maximizing_player, heuristic_type="LOGISTIC"):

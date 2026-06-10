@@ -245,7 +245,7 @@ class CaroUI:
         
         # Truyền chính xác loại Heuristic vào các hàm tìm kiếm của Logic_game
         if algo == "PURE":
-            score, move = self.logic.pure_minimax(board_copy, maximizing_player=(side == 1))
+            score, move = self.logic.pure_minimax(board_copy, depth, maximizing_player=(side == 1))
         elif algo == "HEURISTIC":
             score, move = self.logic.minimax_heuristic_only(board_copy, depth, maximizing_player=(side == 1), heuristic_type=heur)
         else: # ALPHABETA
