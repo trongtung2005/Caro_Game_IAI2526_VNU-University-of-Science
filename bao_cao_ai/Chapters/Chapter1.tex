@@ -1,0 +1,81 @@
+% Chương 1
+
+\chapter{GIỚI THIỆU CHUNG} % Tên của chương
+
+\label{Chapter1} % Để trích dẫn chương này ở chỗ nào đó trong bài, hãy sử dụng lệnh \ref{Chapter1} 
+
+%----------------------------------------------------------------------------------------
+
+% Định nghĩa một số lệnh cần thiết để điều chỉnh định dạng cho một số nội dung nhất định trong bài
+\newcommand{\keyword}[1]{\textbf{#1}}
+\newcommand{\tabhead}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{\bfseries#1}}
+\newcommand{\option}[1]{\texttt{\itshape#1}}
+
+%----------------------------------------------------------------------------------------
+
+\section{Giới thiệu về cờ Caro}
+\subsection{Tổng quan về trò chơi}
+
+Cờ Caro hay còn được biết đến rộng rãi với tên gọi Gomoku - một trò chơi cờ chiến thuật đối kháng có lịch sử lâu đời và có nguồn gốc từ châu Á. Trò chơi thường được cử hành trên một bàn cờ dạng lưới kẻ ô vuông với kích thước tiêu chuẩn là 15x15. Hai người chơi sẽ luân phiên đặt các quân cờ của mình (thường được ký hiệu trực quan là \textbf{X} và \textbf{O} trên máy tính, hoặc quân Đen và Trắng trong cờ vây) vào các giao điểm hoặc ô trống trên bàn cờ. Trận đấu sẽ chính thức kết thúc khi một trong hai người chơi tạo thành công một chuỗi liền mạch gồm đúng 5 quân cờ của mình theo một hướng bất kỳ: chiều ngang, chiều dọc hoặc đường chéo. 
+
+Tại Việt Nam, cờ Caro không chỉ đơn thuần là một hình thức giải trí mà đã trở thành một nét văn hóa học đường độc đáo, một mảnh ghép ký ức gắn liền với biết bao thế hệ học sinh, sinh viên. Nhờ sự tối giản tuyệt đối về mặt công cụ - khi một ván cờ có thể bắt đầu ngay lập tức trên những trang vở giấy ô ly chỉ với hai chiếc bút - cờ Caro sở hữu khả năng tiếp cận cộng đồng sâu rộng. Tuy nhiên, đằng sau sự giản dị đó lại là một cuộc đấu trí đòi hỏi tư duy chiến thuật nhạy bén và khả năng tính toán sắc độ, tạo tiền đề vững chắc cho việc số hóa và phát triển trò chơi này thành các phần mềm máy tính hiện đại ngày nay.
+
+Dưới góc độ Khoa học máy tính và Trí tuệ Nhân tạo, cờ Caro được phân loại là trò chơi đối kháng có thông tin hoàn hảo, mang tính xác định và có tổng bằng không (Deterministic, Perfect Information, Zero-Sum Game). Điều này đồng nghĩa với việc toàn bộ trạng thái của bàn cờ luôn được công khai minh bạch cho cả hai phe tại mọi thời điểm, không tồn tại bất kỳ yếu tố ngẫu nhiên hay may rủi nào (như việc đổ xúc xắc hay rút bài), và lợi ích của người chơi này chính là thiệt hại của người chơi kia. Những đặc trưng lý thuyết này khiến Caro trở thành một bài toán kinh điển và là môi trường thử nghiệm lý tưởng cho các mô hình, thuật toán tìm kiếm trên cây trò chơi.
+
+\subsection{Luật chơi và điều kiện chiến thắng}
+
+Để xây dựng một tác tử AI hoạt động chính xác, việc hệ thống hóa luật chơi là bước tiên quyết. Trò chơi cờ Caro trong đồ án này được thiết lập dựa trên các quy tắc truyền thống quen thuộc tại Việt Nam, bao gồm những điểm cốt lõi sau:
+
+\begin{itemize}
+	
+	\item \textbf{Quy tắc bàn cờ và lượt đi:} Trận đấu diễn ra trên một bàn cờ lưới vuông (kích thước có thể tùy biến 10x10, 12x12 hoặc 15x15). Hai người chơi (hoặc một người và một AI) đại diện cho hai phe \textbf{X} và \textbf{O}. Bắt đầu ván cờ, bàn cờ hoàn toàn trống. Hai bên sẽ lần lượt luân phiên đánh dấu quân cờ của mình vào các ô trống chưa bị chiếm dụng.
+
+	\item \textbf{Điều kiện chiến thắng cơ bản:} Mục tiêu cốt lõi của mỗi phe là cố gắng sắp xếp các quân cờ của mình tạo thành một chuỗi liền mạch gồm từ 5 quân cờ trở lên trên cùng một hàng ngang, hàng dọc hoặc đường chéo(luật chơi 5-in-a-row).
+
+	\item \textbf{Biến thể "Luật chặn hai đầu" (Khóa đuôi):} Đây là luật chơi đặc trưng làm nên tính chiến thuật sâu sắc của cờ Caro Việt Nam so với luật Gomoku quốc tế tự do (Free Gomoku). Cụ thể, một chuỗi 5 quân cờ liên tiếp sẽ không được công nhận là chiến thắng nếu nó bị chặn đứng ở cả hai đầu bởi quân của đối phương (hoặc bị giới hạn bởi đường biên của bàn cờ). Để được phán quyết thắng cuộc, chuỗi 5 quân đó phải có ít nhất một đầu mở (tức là số lượng đầu bị chặn phải nhỏ hơn 2).
+
+	\item \textbf{Luật hòa cờ (Draw):} Trận đấu sẽ được tuyên bố hòa khi toàn bộ các ô trống trên bàn cờ đều đã được đánh kín quân nhưng không có bất kỳ bên nào thiết lập được chuỗi chiến thắng hợp lệ.
+	
+\end{itemize}
+
+Quy tắc "chặn hai đầu" mang ý nghĩa sống còn trong việc thiết kế \textbf{Hàm Heuristic} cho AI. Nó buộc hệ thống AI không chỉ rượt đuổi mục tiêu xếp đủ 5 quân, mà còn phải biết định lượng mức độ nguy hiểm của các thế cờ bị chặn để đưa ra quyết định phòng thủ kịp thời (ví dụ: sẵn sàng đánh một nước cờ chỉ để khóa đầu đối phương, biến chuỗi 4 quân mở 2 đầu thành chuỗi bị khóa chết).
+
+\subsection{Thách thức kỹ thuật và bài toán bùng nổ tổ hợp}
+
+Mặc dù quy tắc và luật chơi vô cùng dễ nắm bắt, độ phức tạp không gian trạng thái của cờ Caro lại vô cùng lớn, đặt ra những thử thách kỹ thuật không nhỏ cho quá trình phát triển tác tử thông minh:
+
+\begin{itemize}
+	\item \textbf{Sự bùng nổ tổ hợp:} Đối với một bàn cờ kích thước tiêu chuẩn 15x15, ngay ở nước đi đầu tiên, hệ số phân nhánh đã lên tới 225. Khi chiều sâu của cây quyết định tăng lên, số lượng trạng thái phải xét duyệt sẽ tăng trưởng theo hàm mũ, với không gian trạng thái tổng thể ước tính vượt quá ngưỡng $10^{105}$.
+	
+	\item \textbf{Sự bất khả thi của phương pháp vét cạn:} Sự bùng nổ tổ hợp khủng khiếp này biến việc duyệt toàn bộ cây trò chơi để tìm kiếm nước đi tối ưu tuyệt đối bằng phương pháp vét cạn (\textit{Brute-force}) trở nên hoàn toàn bất khả thi đối với năng lực phần cứng máy tính hiện tại trong giới hạn thời gian cho phép.
+	
+	\item \textbf{Yêu cầu đáp ứng thời gian thực (Real-time Constraint):} Để mang lại trải nghiệm thi đấu mượt mà cho con người, tác tử AI bắt buộc phải đưa ra quyết định phản hồi trong vòng vài giây. Việc cân bằng giữa độ sâu tìm kiếm (để AI đi nước cờ thông minh) và tốc độ xử lý là một bài toán hóc búa.
+\end{itemize}
+
+Do đó, bài toán đặt ra cho nhóm thực hiện đề tài là phải tìm cách thu hẹp không gian tìm kiếm một cách hiệu quả. Điều này đòi hỏi việc vận dụng linh hoạt thuật toán gốc Minimax, kết hợp chặt chẽ với kỹ thuật tối ưu hóa không gian duyệt Alpha-Beta Pruning để loại bỏ các nhánh yếu, đồng thời đề xuất các giải thuật giới hạn vùng nước đi trống và xây dựng hàm lượng giá Heuristic thông minh để định hướng cây quyết định.
+
+\section{Mục tiêu của đề tài}
+
+Mục tiêu cốt lõi của đề tài này là nghiên cứu, thiết kế và hiện thực hóa một hệ thống phần mềm trò chơi cờ Caro (10x10, 12x12, 15x15) hoàn chỉnh. Hệ thống không chỉ cung cấp giao diện tương tác trực quan mà quan trọng nhất là tích hợp một tác tử trí tuệ nhân tạo (Bot AI) có khả năng thi đấu đối kháng thời gian thực với con người hoặc đối kháng thực nghiệm giữa các tác tử với nhau. Để đạt được mục tiêu tổng thể đó, đề tài tập trung giải quyết các mục tiêu cụ thể sau:
+
+\begin{itemize}
+	\item \textbf{Triển khai thuật toán tìm kiếm đối kháng và đề xuất kỹ thuật tối ưu hóa giảm hệ số phân nhánh:} Hiện thực hóa thuật toán gốc Minimax kết hợp với kỹ thuật cắt tỉa Alpha-Beta (\textit{Alpha-Beta Pruning}) nhằm loại bỏ sớm các nhánh vô giá trị trên cây quyết định. Đặc biệt, để giải quyết thách thức bùng nổ tổ hợp do hệ số phân nhánh ban đầu quá lớn ($b = 225$), đề tài đề xuất và triển khai giải thuật tối ưu hóa vùng tìm kiếm. Kỹ thuật này giới hạn không gian nước đi tiềm năng trong một bán kính $R$ nhất định xung quanh các quân cờ hiện có, từ đó kéo giảm hệ số phân nhánh thực nghiệm xuống mức ổn định giúp thuật toán có khả năng duyệt sâu hơn trong thời gian thực.
+	
+	\item \textbf{Thiết kế hàm lượng giá Heuristic nhận diện mẫu hình chiến thuật:} Xây dựng một hàm lượng giá trạng thái bàn cờ ($H$) chuyên biệt cho biến thể cờ Caro 5-in-a-row. Hàm số này vận hành dựa trên cơ chế quét ma trận và đối chiếu mẫu hình để nhận diện và định giá các cấu trúc quân cờ chiến thuật (như chuỗi 4 quân mở hai đầu, chuỗi 3 quân đứt đoạn, chuỗi bị chặn). Điểm số tổng thể của trạng thái là hiệu số giữa thế trận tấn công (Attack Score) và thế trận phòng thủ (Defend Score), giúp Bot AI có tư duy nhạy bén trong việc cân bằng giữa tấn công chiếm thế thượng phong và phòng thủ ngăn chặn đối phương chiến thắng.
+	
+	\item \textbf{Chứng minh và đánh giá sự chênh lệch hiệu năng giữa lý thuyết và thực nghiệm:} Tiến hành thực nghiệm ghi lại dữ liệu vận hành của hệ thống dưới các cấu hình độ sâu khác nhau. Từ đó, thực hiện phân tích đối sánh, chứng minh bằng số liệu trực quan về sự chênh lệch hiệu năng (bao gồm tổng thời gian ra quyết định và số lượng nút thực tế phải duyệt trên cây) giữa công thức ước tính lý thuyết của cây quyết định vét cạn với số liệu thực tế sau khi đã áp dụng các kỹ thuật cắt tỉa Alpha-Beta và tối ưu vùng nước đi trống.
+\end{itemize}
+
+\section{Phạm vi nghiên cứu}
+
+Để đảm bảo tính tập trung và độ khả thi của đề tài trong giới hạn tài nguyên tính toán của phần cứng thông dụng, phạm vi nghiên cứu được xác định cụ thể như sau:
+
+\begin{itemize}
+	\item \textbf{Không gian trạng thái và cấu trúc môi trường:} Nghiên cứu tập trung hoàn toàn vào môi trường bàn cờ lưới vuông kích thước cố định là $15 \times 15$ ô (tương đương với ma trận trạng thái có $225$ vị trí). Các thuật toán tối ưu hóa cấu trúc dữ liệu và tìm kiếm ô trống sẽ được thiết kế tối ưu hóa riêng cho không gian ma trận hai chiều này nhằm tránh lãng phí bộ nhớ RAM.
+	
+	\item \textbf{Quy tắc và luật chơi áp dụng:} Tác tử AI được lập trình để tuân thủ tuyệt đối luật cờ Caro 5-in-a-row. Điều kiện chiến thắng được phán quyết ngay khi một trong hai phe thiết lập được một chuỗi liền mạch từ 5 quân cờ trở lên theo hàng ngang, hàng dọc hoặc đường chéo. Các biến thể phức tạp khác của quốc tế (như luật Renju giới hạn nước đi mở đầu của quân Đen) nằm ngoài phạm vi xử lý của đề tài này.
+	
+	\item \textbf{Giới hạn độ sâu duyệt cây quyết định:} Nghiên cứu tập trung khảo sát và tìm ra ngưỡng độ sâu duyệt tối ưu cho hiệu năng tốt nhất - nơi cân bằng hoàn hảo giữa độ nhạy bén chiến thuật (AI không đi nước cờ thiển cận) và giới hạn thời gian phản hồi thời gian thực dưới 3 giây cho mỗi nước đi). Các cấu hình độ sâu vượt quá ngưỡng chịu tải của bộ vi xử lý đơn luồng CPU gây trễ phản hồi sẽ được ghi nhận như một giới hạn thực nghiệm thay vì mục tiêu ứng dụng thực tế.
+\end{itemize}

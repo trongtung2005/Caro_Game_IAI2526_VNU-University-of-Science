@@ -1,0 +1,38 @@
+%----------------------------------------------------------------------------------------
+%	CHƯƠNG 5: KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+%----------------------------------------------------------------------------------------
+
+\chapter{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+\label{Chapter5}
+
+% =================================================================
+%   MỤC 5.1
+% =================================================================
+\section{Kết luận}
+
+Đề tài đã giải quyết trọn vẹn các mục tiêu nghiên cứu đặt ra ban đầu và hiện thực hóa thành công một hệ thống Trí tuệ nhân tạo đối kháng độc lập cho trò chơi cờ Caro ($15 \times 15$). Những kết quả cốt lõi mà nhóm thực hiện đề tài đã đạt được bao gồm:
+
+\begin{itemize}
+	\item \textbf{Thiết kế giao diện và trải nghiệm người dùng:} Xây dựng thành công môi trường cờ Caro kỹ thuật số hoàn chỉnh với giao diện đồ họa phong cách Neon trên nền \textit{Dark Mode} trực quan. Hệ thống đảm bảo tính tương phản cao, chống mỏi mắt và tích hợp các hiệu ứng phản hồi trạng thái thời gian thực linh hoạt.
+	
+	\item \textbf{Tối ưu hóa giải thuật AI cốt lõi:} Cài đặt và cấu hình hiệu quả lõi tìm kiếm Minimax đệ quy kết hợp kỹ thuật cắt tỉa Alpha-Beta và bộ lọc không gian \textit{Interesting Moves}. Sự cải tiến này giúp tác tử AI bẻ gãy hơn $99.99\%$ các nhánh vô nghiệm, cho phép duyệt sâu tới tầng $d=5$ và đưa ra quyết định nước đi tối ưu trong giới hạn thời gian thực dưới $3\text{s}$.
+	
+	\item \textbf{Tích hợp mô hình học máy:} Ứng dụng thành công mô hình Hồi quy Logistic (\textit{Logistic Regression}) để tự động hóa tiến trình trích xuất bộ trọng số Heuristic từ tập dữ liệu biểu mẫu. Cơ chế này tạo tiền đề khoa học vững chắc để so sánh, đối chiếu hiệu năng thực chiến với bộ trọng số cấu hình thủ công cảm tính.
+	
+	\item \textbf{Tính năng thực tiễn cao:} Hoàn thiện các tiện ích mở rộng hỗ trợ toàn diện cho cả người chơi và nhà phát triển, bao gồm: hệ thống gợi ý nước đi thông minh (\textit{Hint}), khóa đồng bộ trạng thái luồng ngầm chống nghẽn giao diện, và cơ chế tự động kết xuất biên bản trận đấu chuẩn hóa quốc tế theo định dạng PGN phục vụ lưu trữ, phân tích.
+\end{itemize}
+
+% =================================================================
+%   MỤC 5.2: HƯỚNG PHÁT TRIỂN
+% =================================================================
+\section{Hướng phát triển trong tương lai}
+
+Mặc dù hệ thống tác tử AI đã vận hành ổn định và chứng minh được năng lực chiến thuật ở mức độ trung cấp, đề tài vẫn mở ra nhiều không gian nghiên cứu để tối ưu hóa và hoàn thiện hơn nữa trong tương lai thông qua các định hướng trọng tâm sau:
+
+\begin{itemize}
+	\item \textbf{Nâng cấp lõi kiến trúc thuật toán tư duy:} Nghiên cứu dịch chuyển hoặc lai hóa giải thuật tìm kiếm truyền thống sang phương pháp Duyệt cây Monte Carlo (\textit{Monte Carlo Tree Search - MCTS}) kết hợp triển khai cấu trúc Bảng chuyển vị (\textit{Transposition Table}). Xa hơn là tích hợp Mạng nơ-ron tích chập (\textit{CNN}) sâu để tự động học sâu các mẫu hình bàn cờ, loại bỏ hoàn toàn việc thiết lập điểm số Heuristic thủ công.
+	
+	\item \textbf{Tối ưu hóa hiệu năng phần cứng lớp dưới:} Tiến hành tái cấu trúc và biên dịch các hàm quét ma trận, lượng giá Heuristic cốt lõi từ ngôn ngữ Python sang ngôn ngữ có tốc độ thực thi cao như C hoặc C++. Đồng thời, ứng dụng sâu cơ chế tính toán song song đa luồng (\textit{Multi-threading}) để AI có thể nội suy đa kịch bản sâu hơn ($d \ge 7$) trong cùng một đơn vị thời gian.
+	
+	\item \textbf{Mở rộng nền tảng và kiến trúc hệ thống:} Phát triển và chuyển đổi ứng dụng sang kiến trúc mạng \textit{Client-Server}. Định hướng này giúp nâng cấp trò chơi từ một ứng dụng cục bộ thành một nền tảng thi đấu trực tuyến nhiều người chơi (Online PvP) đa nền tảng, tích hợp hệ thống quản lý cơ sở dữ liệu trận đấu và xếp hạng người chơi trên đám mây.
+\end{itemize}

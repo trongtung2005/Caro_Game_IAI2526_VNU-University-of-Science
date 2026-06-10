@@ -1,0 +1,228 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global/global}
+  \entry{van2002games}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=VDHHJ}{%
+         family={Van Den\bibnamedelima Herik},
+         familyi={V\bibinitperiod\bibinitdelim D\bibinitperiod\bibinitdelim
+  H\bibinitperiod},
+         given={H\bibnamedelima Jaap},
+         giveni={H\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=UJW}{%
+         family={Uiterwijk},
+         familyi={U\bibinitperiod},
+         given={Jos\bibnamedelima WHM},
+         giveni={J\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+      {{hash=VRJ}{%
+         family={Van\bibnamedelima Rijswijck},
+         familyi={V\bibinitperiod\bibinitdelim R\bibinitperiod},
+         given={Jack},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Elsevier}%
+    }
+    \strng{namehash}{VDHHJ+1}
+    \strng{fullhash}{VDHHJUJWVRJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{1-2}
+    \field{pages}{277\bibrangedash 311}
+    \field{title}{Games solved: Now and in the future}
+    \field{volume}{134}
+    \field{journaltitle}{Artificial Intelligence}
+    \field{year}{2002}
+  \endentry
+
+  \entry{russell1995modern}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=RS}{%
+         family={Russell},
+         familyi={R\bibinitperiod},
+         given={Stuart},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=NP}{%
+         family={Norvig},
+         familyi={N\bibinitperiod},
+         given={Peter},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=IA}{%
+         family={Intelligence},
+         familyi={I\bibinitperiod},
+         given={Artificial},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RS+1}
+    \strng{fullhash}{RSNPIA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{27}
+    \field{pages}{79\bibrangedash 80}
+    \field{title}{A modern approach}
+    \field{volume}{25}
+    \field{journaltitle}{Artificial Intelligence. Prentice-Hall, Egnlewood
+  Cliffs}
+    \field{year}{1995}
+  \endentry
+
+  \entry{knuth1975analysis}{article}{}{}
+    \name{author}{2}{}{%
+      {{hash=KDE}{%
+         family={Knuth},
+         familyi={K\bibinitperiod},
+         given={Donald\bibnamedelima E},
+         giveni={D\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=MRW}{%
+         family={Moore},
+         familyi={M\bibinitperiod},
+         given={Ronald\bibnamedelima W},
+         giveni={R\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Elsevier}%
+    }
+    \strng{namehash}{KDEMRW1}
+    \strng{fullhash}{KDEMRW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{4}
+    \field{pages}{293\bibrangedash 326}
+    \field{title}{An analysis of alpha-beta pruning}
+    \field{volume}{6}
+    \field{journaltitle}{Artificial intelligence}
+    \field{year}{1975}
+  \endentry
+
+  \entry{szHots2018development}{article}{}{}
+    \name{author}{2}{}{%
+      {{hash=SJ}{%
+         family={Sz{\H{o}}ts},
+         familyi={S\bibinitperiod},
+         given={J{\'a}nos},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=HI}{%
+         family={Harmati},
+         familyi={H\bibinitperiod},
+         given={Istv{\'a}n},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SJHI1}
+    \strng{fullhash}{SJHI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{4}
+    \field{pages}{155\bibrangedash 164}
+    \field{title}{Development of an incremental pattern extraction based gomoku
+  agent}
+    \field{volume}{62}
+    \field{journaltitle}{Periodica Polytechnica Electrical Engineering and
+  Computer Science}
+    \field{year}{2018}
+  \endentry
+
+  \entry{allis1994searching}{book}{}{}
+    \true{moreauthor}
+    \true{morelabelname}
+    \name{author}{1}{}{%
+      {{hash=ALV}{%
+         family={Allis},
+         familyi={A\bibinitperiod},
+         given={Louis\bibnamedelima Victor},
+         giveni={L\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Ponsen \& Looijen Wageningen}%
+    }
+    \strng{namehash}{ALV+1}
+    \strng{fullhash}{ALV+1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Searching for solutions in games and artificial intelligence}
+    \field{volume}{14}
+    \field{year}{1994}
+  \endentry
+
+  \entry{aljerjawi2025reinventing}{article}{}{}
+    \name{author}{2}{}{%
+      {{hash=ANS}{%
+         family={Aljerjawi},
+         familyi={A\bibinitperiod},
+         given={Nesreen\bibnamedelima S},
+         giveni={N\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+      {{hash=ANSS}{%
+         family={Abu-Naser},
+         familyi={A\bibinithyphendelim N\bibinitperiod},
+         given={Samy\bibnamedelima S},
+         giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ANSANSS1}
+    \strng{fullhash}{ANSANSS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{6}
+    \field{pages}{126\bibrangedash 133}
+    \field{title}{Reinventing Classical Sorting with Deep Learning and
+  Reinforcement Techniques}
+    \field{volume}{9}
+    \field{journaltitle}{International Journal of Academic Information Systems
+  Research (IJAISR)}
+    \field{year}{2025}
+  \endentry
+
+  \entry{vuhuutiep2018mlcb}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=TVH}{%
+         family={Tiệp},
+         familyi={T\bibinitperiod},
+         given={Vũ\bibnamedelima Hữu},
+         giveni={V\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+    }
+    \list{language}{1}{%
+      {vietnamese}%
+    }
+    \list{publisher}{1}{%
+      {Nhà xuất bản Khoa học và Kỹ thuật}%
+    }
+    \strng{namehash}{TVH1}
+    \strng{fullhash}{TVH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Machine Learning cơ bản}
+    \list{location}{1}{%
+      {Hà Nội}%
+    }
+    \field{year}{2018}
+  \endentry
+\enddatalist
+\endinput

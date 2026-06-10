@@ -1,0 +1,73 @@
+% Phụ lục A
+
+\chapter{Các câu hỏi thường gặp} % Tên của phụ lục
+
+\label{AppendixA} % Để trích dẫn chương này ở chỗ nào đó trong bài, hãy sử dụng lệnh \ref{AppendixA} 
+
+%----------------------------------------------------------------------------------------
+
+\section{Làm sao để thay đổi màu của đường dẫn liên kết?}
+
+Màu sắc của đường dẫn có thể được thay đổi bằng các lệnh sau:
+
+{\small\verb!\hypersetup{urlcolor=red}!}, hoặc
+
+{\small\verb!\hypersetup{citecolor=green}!}, hoặc
+
+{\small\verb!\hypersetup{allcolor=blue}!}.
+
+\noindent Nếu bạn muốn ẩn toàn bộ đường dẫn, bạn có thể dùng lệnh:
+
+{\small\verb!\hypersetup{allcolors=.}!}, hoặc thậm chí tốt hơn: 
+
+{\small\verb!\hypersetup{hidelinks}!}.
+
+\noindent Nếu bạn muốn hiển thị đường dẫn có màu trên file PDF còn ở bản in ra thì không, hãy sử dụng:
+
+{\small\verb!\hypersetup{colorlinks=false}!}.
+
+
+%----------------------------------------------------------------------------------------
+
+\section{Làm sao để biểu diễn một bảng số liệu dài (hơn 1 trang), hoặc một bảng quá to?}
+
+Thay vì sử dụng lệnh {\small\verb!\begin{table}!}, bạn hãy sử dụng lệnh {\small\verb!\begin{longtable}!}. Gói bổ trợ \code{longtable} (đã có sẵn trong template này) sẽ tự động giúp bạn ngắt bảng tại một vị trí khi bảng đã quá dài và biểu diễn phần còn lại của bảng ở những trang tiếp theo. Tài liệu về \code{longtable} bạn có thể tham khảo tại \href{https://mirror.kku.ac.th/CTAN/macros/latex/required/tools/longtable.pdf}{đường dẫn này}.
+
+Trong trường hợp bảng số liệu dài theo bề ngang, bạn có thể xem xét phương án biểu diễn bảng số liệu theo chiều ngang của trang giấy như ví dụ Bảng~\ref{tab:treatments2} dưới đây. Để thực hiện cách này, bạn khai báo bảng như bình thường, rồi thay lệnh {\small\verb!\begin{table}!} bằng lệnh {\small\verb!\begin{sidewaystable}!}. Gói bổ trợ cho lệnh này đã có sẵn trong template này.
+
+\begin{sidewaystable}
+	\caption{Ảnh hưởng của phương pháp điều trị X và Y đối với bốn nhóm được nghiên cứu.}
+	\label{tab:treatments2}
+	\centering
+	\begin{tabular}{l l l}
+		\toprule
+		\tabhead{Nhóm} & \tabhead{Phương pháp X} & \tabhead{Phương pháp Y} \\
+		\midrule
+		1	& 0.20	& 0.80	\\
+		2	& 0.17	& 0.70	\\
+		3	& 0.24	& 0.75	\\
+		4	& 0.68	& 0.30	\\
+		\bottomrule	\\
+	\end{tabular}
+\end{sidewaystable}
+
+
+%----------------------------------------------------------------------------------------
+
+\section{Làm sao để tìm đoạn code dưới định dạng bibtex cho tài liệu trích dẫn một cách hiệu quả?}
+
+Bạn có thể tham khảo một số cách sau đây:
+
+\begin{itemize}
+	\item Cách 1: Sử dụng trang \href{https://scholar.google.com}{scholar.google.com}\\
+	Bạn sẽ cần đi đến trang \href{https://scholar.google.com}{scholar.google.com} và hãy dán chính xác tên bài báo bạn muốn tìm kiếm. Sau đó bạn sẽ thấy một danh sách rất nhiều các đường dẫn đến bài báo và cả các bài báo tương tự mà bạn tìm kiếm. Hãy click vào biểu tượng: \textcolor{blue}{\faQuoteRight\;Cite}, rồi chọn tùy chọn \option{BibTeX} và bạn sẽ thấy đoạn code bạn cần.
+	\item Cách 2: Sử dụng trang \href{https://www.researchgate.net/search}{researchgate.net}\\
+	Bạn sẽ cần đi đến trang \href{https://www.researchgate.net/search}{researchgate.net} và hãy dán chính xác tên bài báo bạn muốn tìm kiếm. Sau đó bạn sẽ thấy một danh sách rất nhiều các đường dẫn đến bài báo và cả các bài báo tương tự mà bạn tìm kiếm. Hãy click vào tên bài báo phù hợp, sau đó click vào \option{Download citation}, rồi chọn tùy chọn \option{BibTeX} và \option{Citation only}. Để thuận tiện, bạn không cần download file chứa nội dung BibTeX về mà chỉ đơn giản chọn \option{Copy to clipboard} rồi dán nội dung vừa copy vào file \file{main.bib} của mình.
+	\item Cách 3: Nếu một số tài liệu không xuất hiện ở cả hai trang phía trên, những tài liệu này thường là phần mềm hoặc kỉ yếu hoặc sách. Đối với phần mềm hoặc kỉ yếu, bạn có thể đi đến trang web chính thức chứa phần mềm hoặc kỉ yếu đó, nhiều khả năng là trang web sẽ hỗ trợ bạn trong việc trích dẫn. Đối với sách, bạn có nên tự xây dựng đoạn code BibTeX dựa trên một số đoạn code tương tự rồi thay đổi nội dung như số chương, số trang bạn đang muốn trích dẫn tới sao cho phù hợp.
+\end{itemize}
+
+
+
+
+
+

@@ -1,0 +1,281 @@
+%	PHẦN 1: CÁC PACKAGE CƠ BẢN VÀ CÁC TÙY CHỈNH VĂN BẢN
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+12pt,
+oneside,
+english,
+doublespacing,
+nolistspacing,
+liststotoc,
+parskip,
+headsepline,
+chapterinoneline,
+]{HUSdissertation}
+
+% \usepackage[utf8]{inputenc} 
+\usepackage[utf8]{vietnam} 
+%\usepackage[T1]{fontenc}
+
+\usepackage{mathptmx}
+\usepackage{amsmath}
+\allowdisplaybreaks
+
+%https://www.overleaf.com/learn/latex/Biblatex_citation_styles
+%\usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex}
+\usepackage[backend=bibtex,style=numeric,citestyle=ieee,natbib=true]{biblatex}
+
+\addbibresource{main.bib}
+
+\usepackage[autostyle=true]{csquotes}
+
+
+%----------------------------------------------------------------------------------------
+%	PHẦN 2: CÁC PACKAGE BỔ TRỢ THÊM VÀO TRONG QUÁ TRÌNH BIÊN SOẠN
+%----------------------------------------------------------------------------------------
+
+\RequirePackage{setlst}		% Liệt kê/trích dẫn code
+
+\usepackage{multirow}
+\usepackage{subfigure}
+\usepackage[fontsize=13pt]{scrextend}
+
+%https://www.sascha-frank.com/latex-font-size.html
+%https://tex.stackexchange.com/questions/103286/how-to-change-section-subsection-font-size
+\usepackage{titlesec}
+
+\titleformat{\section}
+{\normalfont\fontsize{13}{13}\bfseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\fontsize{13}{13}\bfseries\itshape}{\thesubsection}{1em}{}
+
+%https://tex.stackexchange.com/questions/351961/how-to-indent-code-in-beginverbatim
+\usepackage{fancyvrb} 		% Fancy Verbatim
+\fvset{tabsize=4,vspace=0pt,fontsize=\footnotesize}
+
+\usepackage{longtable} 		% Bảng dài - Long table
+
+\usepackage[figuresright]{rotating} % Bảng ngang - Sideways table
+\usepackage{tabularx}
+
+\usepackage{fontawesome5} 	% Các biểu tượng, ký hiệu đặc biệt
+
+\usepackage{tikz} 			% Vẽ hình
+\usetikzlibrary{calc}
+
+\usepackage{indentfirst}	% Lùi đầu dòng ở đầu đoạn văn
+\setlength{\parindent}{0.5cm}
+
+%----------------------------------------------------------------------------------------
+%	PHẦN 3: THÔNG TIN VỀ Khóa luận tốt nghiệp/Tiểu luận (THESIS INFORMATION)
+%----------------------------------------------------------------------------------------
+
+\author{Lại Huy Hoàng \\ Nguyễn Trọng Tùng \\ Nguyễn Bá Tiến Phát \\ Tô Quang Hân} 
+\thesistitle{Thiết kế và phát triển tác tử trí tuệ nhân tạo cho trò chơi Cờ Caro} 
+\def\coursecode{NHẬP MÔN TRÍ TUỆ NHÂN TẠO (PHY1313)}
+\supervisor {GS.TS. Nguyễn Thế Toàn}
+\supervisorr{CN. Vi Anh Quân} 	% Tên này nếu không có thì để trống!
+
+\field{Ngành Kỹ thuật điện tử và Tin học} 					% Ví dụ: "Ngành Vật lý", "Ngành Hóa học", v.v.
+\doctype{Tiểu luận} 
+
+\university{\href{http://hus.vnu.edu.vn}{Trường Đại học Khoa học Tự nhiên}}
+\department{\href{http://hus.vnu.edu.vn/gioi-thieu/co-cau-to-chuc/khoa-truc-thuoc/khoa-vat-ly.html}{Khoa Vật lý}}
+
+\AtBeginDocument{
+	\hypersetup{pdftitle=\ttitle}
+	\hypersetup{pdfauthor=\authorname}
+}
+
+
+\begin{document}
+	
+	\lstset{style=codeC}	% Thiết lập ngôn ngữ C/C++ là ngôn ngữ mặc định cho phần liệt kê souce code của cả bài
+	
+	\frontmatter 			% Sử dụng hệ thống đánh số La Mã (i, ii, iii, iv...) cho những trang trước phần mục lục
+	
+	\pagestyle{plain} 
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	(KHÔNG CHỈNH SỬA PHẦN NÀY)
+	%
+	%	PHẦN 4: TRANG TIÊU ĐỀ/TRANG BÌA (TITLE PAGE)
+	%----------------------------------------------------------------------------------------
+	
+	% TRANG BÌA CHÍNH:
+	\include{main-cover}
+	
+	% TRANG BÌA PHỤ:
+	\include{sub-cover}
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	PHẦN 5: DANH NGÔN (QUOTES)
+	%----------------------------------------------------------------------------------------
+	
+	\vspace*{0.2\textheight}
+	
+	\noindent\enquote{\itshape 
+		Không có đau đớn, sẽ không có bài học thực sự ý nghĩa.
+	}\bigbreak
+	
+	\hfill Edward Elric (Fullmetal Alchemist: Brotherhood)
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	PHẦN 6: LỜI CẢM ƠN (ACKNOWLEDGEMENTS)
+	%----------------------------------------------------------------------------------------
+	
+	\begin{acknowledgements}
+		\addchaptertocentry{\acknowledgementname}
+		\thispagestyle{empty}
+		
+		\indent Lời đầu tiên, nhóm chúng em xin gửi lời cảm ơn chân thành và sâu sắc nhất đến các thầy cô giáo Trường Đại học Khoa học Tự nhiên, Đại học Quốc gia Hà Nội. Trong suốt quá trình học tập dưới mái trường, các thầy cô đã tận tình truyền dạy và trang bị cho nhóm những kiến thức nền tảng vô cùng quý báu, tạo tiền đề vững chắc để em thực hiện đề tài này.
+		
+		Bên cạnh đó, nhóm xin bày tỏ lòng biết ơn sâu sắc đến \textbf{TS. Nguyễn Thế Toàn} và \textbf{CN. Vi Anh Quân}, những người đã trực tiếp giảng dạy, chỉ bảo trong xuyên suốt môn học Nhập môn Trí tuệ nhân tạo. Sự hỗ trợ chuyên môn và những kiến thức bổ trợ quý báu về trí tuệ nhân tạo của hai thầy chính là kim chỉ nam giúp nhóm chúng em hoàn thiện đề tài. 
+		
+		Cuối cùng, xin cảm ơn tất cả các thành viên trong nhóm 2 đã luôn nỗ lực, đoàn kết và sẻ chia trách nhiệm. Mặc dù đã có nhiều cố gắng, song do kiến thức và kinh nghiệm lập trình thực tế còn hạn chế, quyển báo cáo khó tránh khỏi những thiếu sót. Nhóm rất mong nhận được những ý kiến đóng góp quý báu từ các thầy để đề tài có thể phát triển hoàn thiện hơn trong tương lai. 
+		
+		Nhóm tác giả xin chân thành cảm ơn!
+		\begin{flushright}
+			\itshape TP. Hà Nội, ngày 11 tháng 06 năm 2026 \\[0.2cm]
+			\normalfont\bfseries Nhóm sinh viên thực hiện \\[0.2cm]
+			\normalfont Nhóm 2
+		\end{flushright}
+		 
+	\end{acknowledgements}
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	(KHÔNG CHỈNH SỬA PHẦN NÀY)
+	%
+	%	PHẦN 7: MỤC LỤC (LIST OF CONTENTS/FIGURES/TABLES PAGES)
+	%----------------------------------------------------------------------------------------
+	
+	\begin{spacing}{1.15}
+		\tableofcontents 	% In ra mục lục chính
+	\end{spacing}
+	
+	\begin{spacing}{1.15}
+		\listoffigures 		% In ra danh sách hình vẽ
+	\end{spacing}
+	
+	\begin{spacing}{1.15}
+		\listoftables		% In ra danh sách bảng
+	\end{spacing}
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	PHẦN 8: DANH SÁCH TÊN VIẾT TẮT (ABBREVIATIONS)
+	%----------------------------------------------------------------------------------------
+	
+	\begin{abbreviations}{ll} % Thêm danh sách tên viết tắt (dưới dạng một bảng có 2 cột)
+		
+		\textbf{AI}    & \textbf{A}rtificial \textbf{I}ntelligence (Trí tuệ nhân tạo) \\
+		\textbf{API}   & \textbf{A}pplication \textbf{P}rogramming \textbf{I}nterface (Giao diện lập trình ứng dụng) \\
+		\textbf{CPU}   & \textbf{C}entral \textbf{P}rocessing \textbf{U}nit (Bộ xử lý trung tâm) \\
+		\textbf{GA}    & \textbf{G}enetic \textbf{A}lgorithm (Thuật toán di truyền) \\
+		\textbf{GUI}   & \textbf{G}raphical \textbf{U}ser \textbf{I}nterface (Giao diện người dùng đồ họa) \\
+		\textbf{MCTS}  & \textbf{M}onte \textbf{C}arlo \textbf{T}ree \textbf{S}earch (Tìm kiếm cây Monte Carlo) \\
+		\textbf{PGN}   & \textbf{P}ortable \textbf{G}ame \textbf{N}otation (Biên bản ghi lại các nước đi trong trò chơi đối kháng) \\
+		\textbf{RAM}   & \textbf{R}andom \textbf{A}ccess \textbf{M}emory (Bộ nhớ truy cập ngẫu nhiên) \\
+		\textbf{SFX}   & \textbf{S}ound \textbf{F}e\textbf{x} (Hiệu ứng âm thanh đám đông/hành động) \\
+		\textbf{TT}    & \textbf{T}ransposition \textbf{T}able (Bảng tra cứu trạng thái / Bảng chuyển vị) \\
+		\textbf{UI}    & \textbf{U}ser \textbf{I}nterface (Giao diện người dùng) \\
+		\textbf{UX}    & \textbf{U}ser \textbf{E}x\textbf{p}erience (Trải nghiệm người dùng) \\
+	\end{abbreviations}
+	
+	
+	%	%----------------------------------------------------------------------------------------
+	%	%	PHẦN 9: CÁC HẰNG SỐ VẬT LÝ/THÔNG SỐ KĨ THUẬT (PHYSICAL CONSTANTS/OTHER DEFINITIONS)
+	%	%----------------------------------------------------------------------------------------
+	%	
+	%	\begin{constants}{lr@{${}={}$}l} % Thêm danh sách các hằng số (dưới dạng một bảng có 3 cột)
+		%		
+		%		%	Lệnh \SI{}{} được cung cấp bởi gói siunitx, hãy đọc tài liệu hướng dẫn để biết cách sử dụng nó
+		%		
+		%		%	Tên hằng số 	 & $Biểu tượng$	& $Hằng số$ cùng với đơn vị\\
+		%		Vận tốc ánh sáng & $c_{0}$		& \SI{2.99792458e8}{\meter\per\second} (chính xác)\\
+		%		
+		%	\end{constants}
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	PHẦN 10: DANH SÁCH KÝ HIỆU (SYMBOLS)
+	%----------------------------------------------------------------------------------------
+	
+	\begin{symbols}{lll} % Thêm danh sách các ký hiệu (dưới dạng một bảng có 3 cột)
+		
+		%   Ký hiệu	& Ý nghĩa		& Đơn vị \\
+		$\mathbf{B}$     & Ma trận trạng thái bàn cờ hiện tại (kích thước $15 \times 15$ hoặc tùy chỉnh)\\
+		$\mathbf{M}$     & Tập hợp các tọa độ nước đi tiềm năng được chọn lọc (interesting moves)\\
+		$b$              & Hệ số nhánh (Branching factor) của cây quyết định\\
+		$d$              & Độ sâu duyệt cây tối đa của thuật toán tìm kiếm (\texttt{bot\_depth})\\
+		$H$              & Giá trị hàm lượng giá Heuristic tổng thể của một trạng thái bàn cờ\\
+		
+		\addlinespace % Khoảng cách để phân biệt giữa ký hiệu Latin với ký hiệu Hy Lạp
+		
+		$\alpha$         & Giá trị lượng giá tốt nhất (lớn nhất) mà người chơi Max chắc chắn đạt được\\
+		$\beta$          & Giá trị lượng giá tốt nhất (nhỏ nhất) mà người chơi Min chắc chắn đạt được\\
+		
+	\end{symbols}
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	(KHÔNG CHỈNH SỬA PHẦN NÀY)
+	%
+	%	PHẦN 11: LỜI ĐỀ TẶNG (DEDICATION)
+	%----------------------------------------------------------------------------------------
+	
+	%\dedicatory{Dành tặng/Dành cho/Gửi tới\ldots} 
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	PHẦN 12: NỘI DUNG/CÁC CHƯƠNG Khóa luận tốt nghiệp/Tiểu luận (THESIS CONTENT - CHAPTERS)
+	%----------------------------------------------------------------------------------------
+	
+	\mainmatter % Bắt đầu đánh số trang (1,2,3...)
+	
+	\pagestyle{plain}
+	
+	% Hãy thêm những chương (chapter) của khóa luận/tiểu luận vào thư mục Chapters
+	% Hãy bỏ chú thích những dòng nếu bạn đã bổ sung những chương vào
+	
+	\include{Chapters/Chapter0}
+	\include{Chapters/Chapter1}
+	\include{Chapters/Chapter2} 
+	\include{Chapters/Chapter3}
+	\include{Chapters/Chapter4} 
+	\include{Chapters/Chapter5} 
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	(KHÔNG CHỈNH SỬA PHẦN NÀY)
+	%
+	%	PHẦN 13: TÀI LIỆU THAM KHẢO
+	%----------------------------------------------------------------------------------------
+	
+	\begin{spacing}{1.15}
+		\nocite{*}
+		\printbibliography[heading=bibintoc, title=Tài liệu tham khảo]
+	\end{spacing}
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	PHẦN 14: PHỤ LỤC (THESIS CONTENT - APPENDICES)
+	%----------------------------------------------------------------------------------------
+	
+	\appendix % Nói với LaTeX rằng những chương về sau được tính là phụ lục
+	
+	% Hãy thêm những phụ lục (appendix) của khóa luận/tiểu luận vào thư mục Appendices
+	% Hãy bỏ chú thích những dòng nếu bạn đã bổ sung những phụ lục vào
+	
+	%\include{Appendices/AppendixA}
+	%\include{Appendices/AppendixB}
+	%\include{Appendices/AppendixC}
+	
+	%----------------------------------------------------------------------------------------
+	
+\end{document}  

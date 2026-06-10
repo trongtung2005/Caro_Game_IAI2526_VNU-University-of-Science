@@ -1,0 +1,24 @@
+% MỞ ĐẦU (LỜI MỞ ĐẦU - Chương 0)
+
+\chapter*{MỞ ĐẦU} % Tên của chương
+\addcontentsline{toc}{chapter}{MỞ ĐẦU} % Thêm tên chương vào mục lục
+
+\label{Chapter0} % Để trích dẫn chương này ở chỗ nào đó trong bài, hãy sử dụng lệnh \ref{Chapter0} 
+
+%----------------------------------------------------------------------------------------
+
+Trong sự phát triển mạnh mẽ của khoa học máy tính, Trí tuệ nhân tạo đã và đang trở thành một lĩnh vực tiên phong, định hình lại cách con người tương tác với công nghệ. Trong bối cảnh đó, việc "số hóa" cờ Caro - một trò chơi dân gian quen thuộc của người Việt - không chỉ đáp ứng nhu cầu giải trí hiện đại mà còn tạo ra môi trường lý tưởng để thử nghiệm, đánh giá các thuật toán AI trong bài toán trò chơi đối kháng. 
+
+Dù có luật chơi đơn giản, cờ Caro lại sở hữu không gian trạng thái khổng lồ. Đặc biệt, việc hệ thống cho phép tùy biến kích thước bàn cờ linh hoạt (10x10, 12x12 và lớn nhất là 15x15) khiến hệ số phân nhánh có thể lên tới 225, dẫn đến sự bùng nổ tổ hợp cực kỳ nhanh theo chiều sâu của cây quyết định. Việc tạo ra một tác tử AI có khả năng phân tích, lọc bỏ hàng triệu thế cờ vô giá trị để phản hồi thời gian thực với con người trên các kích thước bàn cờ khác nhau là một thử thách kỹ thuật lớn về mặt tối ưu thuật toán và quản lý tài nguyên máy tính.
+
+Xuất phát từ những lý do trên, nhóm quyết định lựa chọn đề tài: \textbf{"Thiết kế và phát triển tác tử trí tuệ nhân tạo cho trò chơi Cờ Caro"}. 
+
+\section*{Bố cục của tiểu luận}
+Nội dung của tiểu luận gồm 5 chương chính như sau:
+\begin{itemize}
+	\item \textbf{Chương 1: Tổng quan đề tài:} Trình bày bối cảnh, lý do chọn đề tài, khảo sát các sản phẩm Caro AI hiện có và xác định bài toán cụ thể cần giải quyết.
+	\item \textbf{Chương 2: Cơ sở lý thuyết:} Tập trung phân tích chuyên sâu lý thuyết về tìm kiếm đối kháng, chi tiết thuật toán Minimax, nguyên lý cắt tỉa Alpha-Beta và cách xây dựng hàm Heuristic cho cờ Caro.
+	\item \textbf{Chương 3: Thiết kế và xây dựng hệ thống:} Chi tiết hóa kiến trúc phần mềm, cấu trúc dữ liệu ma trận bàn cờ, sơ đồ luồng dữ liệu, thuật toán giới hạn ô trống (Interesting Moves) và mã nguồn triển khai giao diện kết nối giữa các module do các thành viên thực hiện.
+	\item \textbf{Chương 4: Kết quả thực nghiệm:} Đưa ra các số liệu thực tế thu thập được trong quá trình chạy thử nghiệm phần mềm về thời gian xử lý của AI ở các độ sâu (\textit{depth}) khác nhau, số lượng nút bị cắt tỉa và giao diện thực tế của chương trình khi vận hành.
+	\item \textbf{Chương 5: Đánh giá và hướng phát triển:} Tổng kết các ưu điểm, hạn chế của hệ thống hiện tại, đánh giá hiệu quả làm việc nhóm và đề xuất các hướng cải tiến kỹ thuật như bảng chuyển vị (Transposition Table) hay học tăng cường trong tương lai.
+\end{itemize}

@@ -1,0 +1,50 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{Lời cảm ơn}{ii}{section*.1}%
+\contentsline {chapter}{Danh s\'ach h\`inh v\~e}{v}{chapter*.3}%
+\contentsline {chapter}{Danh s\'ach b\h {a}ng}{vi}{chapter*.4}%
+\contentsline {chapter}{Danh sách tên viết tắt}{vii}{chapter*.5}%
+\contentsline {chapter}{Danh sách ký hiệu}{viii}{chapter*.6}%
+\contentsline {chapter}{MỞ ĐẦU}{1}{chapter*.7}%
+\contentsline {chapter}{\numberline {1}GIỚI THIỆU CHUNG}{3}{chapter*.8}%
+\contentsline {section}{\numberline {1.1}Giới thiệu về cờ Caro}{3}{section*.9}%
+\contentsline {subsection}{\numberline {1.1.1}Tổng quan về trò chơi}{3}{subsection*.10}%
+\contentsline {subsection}{\numberline {1.1.2}Luật chơi và điều kiện chiến thắng}{4}{subsection*.11}%
+\contentsline {subsection}{\numberline {1.1.3}Thách thức kỹ thuật và bài toán bùng nổ tổ hợp}{5}{subsection*.12}%
+\contentsline {section}{\numberline {1.2}Mục tiêu của đề tài}{6}{section*.13}%
+\contentsline {section}{\numberline {1.3}Phạm vi nghiên cứu}{7}{section*.14}%
+\contentsline {chapter}{\numberline {2}CƠ SỞ LÝ THUYẾT}{9}{chapter*.15}%
+\contentsline {section}{\numberline {2.1}Tìm kiếm đối kháng}{9}{section*.16}%
+\contentsline {subsection}{\numberline {2.1.1}Lý thuyết trò chơi}{9}{subsection*.17}%
+\contentsline {subsection}{\numberline {2.1.2}Mô hình hóa cờ Caro bằng Cây trò chơi}{10}{subsection*.18}%
+\contentsline {section}{\numberline {2.2}Thuật toán tìm kiếm Minimax}{11}{section*.20}%
+\contentsline {section}{\numberline {2.3}Thuật toán cắt tỉa $\alpha $ - $\beta $}{15}{section*.27}%
+\contentsline {section}{\numberline {2.4}Giới hạn độ sâu và Hàm đánh giá tĩnh}{18}{section*.31}%
+\contentsline {subsection}{\numberline {2.4.1}Giới hạn độ sâu}{18}{subsection*.32}%
+\contentsline {subsection}{\numberline {2.4.2}Hàm đánh giá}{19}{subsection*.33}%
+\contentsline {section}{\numberline {2.5}Hồi quy Logistic}{20}{section*.35}%
+\contentsline {chapter}{\numberline {3}KIẾN TRÚC VÀ THIẾT KẾ HỆ THỐNG}{22}{chapter*.38}%
+\contentsline {section}{\numberline {3.1}Pipeline tổng thể của dự án}{22}{section*.39}%
+\contentsline {section}{\numberline {3.2}Chi tiết kiến trúc phần mềm và cài đặt thuật toán}{24}{section*.41}%
+\contentsline {subsection}{\numberline {3.2.1}Thiết kế Module}{24}{subsection*.42}%
+\contentsline {subsection}{\numberline {3.2.2}Quản lý trạng thái và tính năng bổ trợ (State Management)}{25}{subsection*.43}%
+\contentsline {subsection}{\numberline {3.2.3}Tối ưu hóa hiệu năng bằng Đa luồng (Multi-threading)}{26}{subsection*.44}%
+\contentsline {subsection}{\numberline {3.2.4}Cài đặt thuật toán hệ thống}{27}{subsection*.45}%
+\contentsline {subsubsection}{Thiết lập trọng số Hàm đánh giá}{27}{subsubsection*.46}%
+\contentsline {subsubsection}{Cơ chế phân cấp 3 mức độ khó (\texttt {BOT\_DEPTH})}{28}{subsubsection*.48}%
+\contentsline {subsubsection}{Thuật toán thu hẹp vùng tìm kiếm (\texttt {get\_interesting\_moves})}{29}{subsubsection*.49}%
+\contentsline {subsection}{\numberline {3.2.5}Ứng dụng mô hình Hồi quy Logistic trong tối ưu hóa bộ trọng số lượng giá}{30}{subsection*.54}%
+\contentsline {subsubsection}{Thu thập dữ liệu và biểu diễn không gian vectơ đặc trưng}{30}{subsubsection*.55}%
+\contentsline {subsubsection}{Cơ chế ước lượng xác suất bằng hàm kích hoạt phi tuyến}{31}{subsubsection*.57}%
+\contentsline {subsubsection}{Tối ưu hóa hàm mất mát và trích xuất điểm số Heuristic}{31}{subsubsection*.60}%
+\contentsline {chapter}{\numberline {4}KẾT QUẢ THỰC NGHIỆM VÀ NHẬN XÉT}{33}{chapter*.64}%
+\contentsline {section}{\numberline {4.1}Kết quả thiết kế giao diện}{33}{section*.65}%
+\contentsline {section}{\numberline {4.2}Các chỉ số đánh giá hiệu năng và năng lực của tác tử AI}{35}{section*.69}%
+\contentsline {subsection}{\numberline {4.2.1}Khảo sát chỉ số hiệu năng tính toán thực tế (Định lượng)}{36}{subsection*.70}%
+\contentsline {paragraph}{Nhận xét hệ số kiểm thử hiệu suất định lượng:}{36}{paragraph*.72}%
+\contentsline {subsection}{\numberline {4.2.2}Khảo sát năng lực chiến thuật qua đối chiến giả lập (Định tính)}{37}{subsection*.73}%
+\contentsline {paragraph}{Nhận xét chuyên sâu từ kết quả đối chiến giả lập:}{38}{paragraph*.76}%
+\contentsline {section}{\numberline {4.3}Hạn chế của hệ thống hiện tại}{39}{section*.77}%
+\contentsline {chapter}{\numberline {5}KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}{41}{chapter*.78}%
+\contentsline {section}{\numberline {5.1}Kết luận}{41}{section*.79}%
+\contentsline {section}{\numberline {5.2}Hướng phát triển trong tương lai}{42}{section*.80}%
+\contentsline {chapter}{Tài liệu tham khảo}{43}{chapter*.81}%
