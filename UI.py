@@ -414,7 +414,7 @@ class CaroUI:
             screen.blit(eval_time_surf, (self.btn_home.left, eval_start_y + 50))
 
         self.draw_ripples(screen)
-
+        
     def show_mode_selection(self, screen, font):
         running = True
         title_font = pygame.font.SysFont("tahoma", 28, bold=True)
@@ -486,24 +486,28 @@ class CaroUI:
                     pos = pygame.mouse.get_pos()
                     self.add_ripple(pos)
                     
-                    if btn_pvp.collidepoint(pos):
-                        self.play_sfx(self.sound_click); self.game_mode = "PvP"; running = False
-                    elif btn_pve.collidepoint(pos):
-                        self.play_sfx(self.sound_click); self.game_mode = "PvE"; running = False
-                    elif btn_eve.collidepoint(pos):
-                        self.play_sfx(self.sound_click); self.game_mode = "EvE"; running = False
+                    clicked = False
+                    
+                    if btn_pvp.collidepoint(pos): self.game_mode = "PvP"; running = False; clicked = True
+                    elif btn_pve.collidepoint(pos): self.game_mode = "PvE"; running = False; clicked = True
+                    elif btn_eve.collidepoint(pos): self.game_mode = "EvE"; running = False; clicked = True
                         
-                    elif btn_music_minus.collidepoint(pos):
-                        self.play_sfx(self.sound_click); self.vol_music = max(0.0, self.vol_music - 0.1)
+                    elif btn_music_minus.collidepoint(pos): 
+                        self.vol_music = max(0.0, round(self.vol_music - 0.1, 1))
                         pygame.mixer.music.set_volume(self.vol_music)
-                    elif btn_music_plus.collidepoint(pos):
-                        self.play_sfx(self.sound_click); self.vol_music = min(1.0, self.vol_music + 0.1)
+                        clicked = True
+                    elif btn_music_plus.collidepoint(pos): 
+                        self.vol_music = min(1.0, round(self.vol_music + 0.1, 1))
                         pygame.mixer.music.set_volume(self.vol_music)
-                    elif btn_sfx_minus.collidepoint(pos):
-                        self.vol_sfx = max(0.0, self.vol_sfx - 0.1)
-                        self.play_sfx(self.sound_click)
-                    elif btn_sfx_plus.collidepoint(pos):
-                        self.vol_sfx = min(1.0, self.vol_sfx + 0.1)
+                        clicked = True
+                    elif btn_sfx_minus.collidepoint(pos): 
+                        self.vol_sfx = max(0.0, round(self.vol_sfx - 0.1, 1))
+                        clicked = True
+                    elif btn_sfx_plus.collidepoint(pos): 
+                        self.vol_sfx = min(1.0, round(self.vol_sfx + 0.1, 1))
+                        clicked = True
+
+                    if clicked: 
                         self.play_sfx(self.sound_click)
 
     def show_menu(self, screen, font):
@@ -674,6 +678,8 @@ class CaroUI:
                     pos = pygame.mouse.get_pos()
                     self.add_ripple(pos)
                     
+                    clicked = False
+                    
                     if btn_back.collidepoint(pos):
                         self.play_sfx(self.sound_click)
                         return "BACK" 
@@ -682,43 +688,46 @@ class CaroUI:
                         self.play_sfx(self.sound_click)
                         return "START"
                         
-                    if btn_size_10.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.board_size = 10
-                    elif btn_size_12.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.board_size = 12
-                    elif btn_size_15.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.board_size = 15
+                    if btn_size_10.collidepoint(pos): self.logic.board_size = 10; clicked = True
+                    elif btn_size_12.collidepoint(pos): self.logic.board_size = 12; clicked = True
+                    elif btn_size_15.collidepoint(pos): self.logic.board_size = 15; clicked = True
                     
                     if self.game_mode == "PvE":
-                        if btn_easy.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 1
-                        elif btn_medium.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 2
-                        elif btn_hard.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 3
-                        elif btn_very_hard.collidepoint(pos): self.play_sfx(self.sound_click); self.logic.bot_depth = 4
-                        elif btn_first_player.collidepoint(pos): self.play_sfx(self.sound_click); self.player_side = -1; self.bot_side = 1
-                        elif btn_first_bot.collidepoint(pos): self.play_sfx(self.sound_click); self.player_side = 1; self.bot_side = -1
-                        elif btn_heur_manual.collidepoint(pos): self.play_sfx(self.sound_click); self.pve_heuristic = "MANUAL"
-                        elif btn_heur_log.collidepoint(pos): self.play_sfx(self.sound_click); self.pve_heuristic = "LOGISTIC"
+                        if btn_easy.collidepoint(pos): self.logic.bot_depth = 1; clicked = True
+                        elif btn_medium.collidepoint(pos): self.logic.bot_depth = 2; clicked = True
+                        elif btn_hard.collidepoint(pos): self.logic.bot_depth = 3; clicked = True
+                        elif btn_very_hard.collidepoint(pos): self.logic.bot_depth = 4; clicked = True
+                        elif btn_first_player.collidepoint(pos): self.player_side = -1; self.bot_side = 1; clicked = True
+                        elif btn_first_bot.collidepoint(pos): self.player_side = 1; self.bot_side = -1; clicked = True
+                        elif btn_heur_manual.collidepoint(pos): self.pve_heuristic = "MANUAL"; clicked = True
+                        elif btn_heur_log.collidepoint(pos): self.pve_heuristic = "LOGISTIC"; clicked = True
                     
                     elif self.game_mode == "EvE":
                         # AI 1 Configs
-                        if btn_a1_pure.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_algo = "PURE"
-                        elif btn_a1_heur.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_algo = "HEURISTIC"
-                        elif btn_a1_ab.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_algo = "ALPHABETA"
-                        elif btn_d1_1.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 1
-                        elif btn_d1_2.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 2
-                        elif btn_d1_3.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 3
-                        elif btn_d1_4.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_depth = 4
-                        elif btn_h1_man.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_heur = "MANUAL"
-                        elif btn_h1_log.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_1_heur = "LOGISTIC"
+                        if btn_a1_pure.collidepoint(pos): self.ai_1_algo = "PURE"; clicked = True
+                        elif btn_a1_heur.collidepoint(pos): self.ai_1_algo = "HEURISTIC"; clicked = True
+                        elif btn_a1_ab.collidepoint(pos): self.ai_1_algo = "ALPHABETA"; clicked = True
+                        elif btn_d1_1.collidepoint(pos): self.ai_1_depth = 1; clicked = True
+                        elif btn_d1_2.collidepoint(pos): self.ai_1_depth = 2; clicked = True
+                        elif btn_d1_3.collidepoint(pos): self.ai_1_depth = 3; clicked = True
+                        elif btn_d1_4.collidepoint(pos): self.ai_1_depth = 4; clicked = True
+                        elif btn_h1_man.collidepoint(pos): self.ai_1_heur = "MANUAL"; clicked = True
+                        elif btn_h1_log.collidepoint(pos): self.ai_1_heur = "LOGISTIC"; clicked = True
                         
                         # AI 2 Configs
-                        elif btn_a2_pure.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_algo = "PURE"
-                        elif btn_a2_heur.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_algo = "HEURISTIC"
-                        elif btn_a2_ab.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_algo = "ALPHABETA"
-                        elif btn_d2_1.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 1
-                        elif btn_d2_2.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 2
-                        elif btn_d2_3.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 3
-                        elif btn_d2_4.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_depth = 4
-                        elif btn_h2_man.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_heur = "MANUAL"
-                        elif btn_h2_log.collidepoint(pos): self.play_sfx(self.sound_click); self.ai_2_heur = "LOGISTIC"
-
+                        elif btn_a2_pure.collidepoint(pos): self.ai_2_algo = "PURE"; clicked = True
+                        elif btn_a2_heur.collidepoint(pos): self.ai_2_algo = "HEURISTIC"; clicked = True
+                        elif btn_a2_ab.collidepoint(pos): self.ai_2_algo = "ALPHABETA"; clicked = True
+                        elif btn_d2_1.collidepoint(pos): self.ai_2_depth = 1; clicked = True
+                        elif btn_d2_2.collidepoint(pos): self.ai_2_depth = 2; clicked = True
+                        elif btn_d2_3.collidepoint(pos): self.ai_2_depth = 3; clicked = True
+                        elif btn_d2_4.collidepoint(pos): self.ai_2_depth = 4; clicked = True
+                        elif btn_h2_man.collidepoint(pos): self.ai_2_heur = "MANUAL"; clicked = True
+                        elif btn_h2_log.collidepoint(pos): self.ai_2_heur = "LOGISTIC"; clicked = True
+                        
+                    if clicked:
+                        self.play_sfx(self.sound_click)
+                        
     def run(self):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         pygame.init()

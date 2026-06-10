@@ -1,11 +1,14 @@
 import math
 import threading
 import time
+import random
 
 # CẤU HÌNH ĐIỂM SỐ HEURISTIC CHO AI
 # 1: AI (Bot), -1: Người chơi (Human), 0: Ô trống
 
+# =====================================================================
 # 1. BỘ TRỌNG SỐ LẬP TRÌNH BẰNG TAY (MANUAL)
+# =====================================================================
 ATTACK_MATRIX_MANUAL = {
     (1, 1, 1, 1, 1): 200000,       
     (0, 1, 1, 1, 1, 0): 11000,     
@@ -34,35 +37,40 @@ DEFEND_MATRIX_MANUAL = {
 SCORE_MATRIX_MANUAL = {**ATTACK_MATRIX_MANUAL, **DEFEND_MATRIX_MANUAL}
 
 
+# =====================================================================
 # 2. BỘ TRỌNG SỐ TỪ HỌC MÁY (LOGISTIC REGRESSION)
+# =====================================================================
 ATTACK_MATRIX_LOGISTIC = {
     (1, 1, 1, 1, 1): 200000,
-    (0, 1, 1, 1, 1, 0): 14105.50,
-    (0, 1, 1, 1, 1): 76114.42,
-    (1, 1, 1, 1, 0): 76114.42,
-    (0, 1, 1, 1, 0): 4792.88,
-    (0, 1, 1, 0, 1, 0): 10.00,
-    (0, 1, 0, 1, 1, 0): 10.00,
-    (0, 1, 1, 1): 71321.53,
-    (1, 1, 1, 0): 71321.53,
-    (0, 1, 1, 0): 37198.16,
+    (0, 1, 1, 1, 1, 0): 14780.71,
+    (0, 1, 1, 1, 1): 18888.35,
+    (1, 1, 1, 1, 0): 10492.78,
+    (0, 1, 1, 1, 0): 2908.58,
+    (0, 1, 1, 0, 1, 0): 14685.24,
+    (0, 1, 0, 1, 1, 0): 3073.37,
+    (0, 1, 1, 1): 4031.58,
+    (1, 1, 1, 0): 13436.97,
+    (0, 1, 1, 0): 3736.87,
 }
 
 DEFEND_MATRIX_LOGISTIC = {
     (-1, -1, -1, -1, -1): -200000,
-    (0, -1, -1, -1, -1, 0): -88332.68,
-    (0, -1, -1, -1, -1): -35333.07,
-    (-1, -1, -1, -1, 0): -35333.07,
-    (0, -1, -1, -1, 0): -43208.96,
-    (0, -1, -1, 0, -1, 0): -10.00,
-    (0, -1, 0, -1, -1, 0): -10.00,
-    (0, -1, -1, -1): -78542.04,
-    (-1, -1, -1, 0): -78542.04,
-    (0, -1, -1, 0): -80000.00,
+    (0, -1, -1, -1, -1, 0): -200000.00,
+    (0, -1, -1, -1, -1): -3210.16,
+    (-1, -1, -1, -1, 0): -23248.95,
+    (0, -1, -1, -1, 0): -3550.76,
+    (0, -1, -1, 0, -1, 0): -17230.09,
+    (0, -1, 0, -1, -1, 0): -13548.83,
+    (0, -1, -1, -1): -8589.42,
+    (-1, -1, -1, 0): -14294.48,
+    (0, -1, -1, 0): -2389.63,
 }
 SCORE_MATRIX_LOGISTIC = {**ATTACK_MATRIX_LOGISTIC, **DEFEND_MATRIX_LOGISTIC}
 
 
+# =====================================================================
+# CLASS LOGIC GAME CARO
+# =====================================================================
 class CaroLogic:
     def __init__(self, board_size=15, bot_depth=3):
         self.lock = threading.Lock()
@@ -101,22 +109,55 @@ class CaroLogic:
                 return True, is_win, move_str
         return False, False, ""
 
-    def undo_move(self):
+    def undo_move(self, steps=1):
         with self.lock:
-            if self.bot_thinking or len(self.move_history) < 2:
+            # Nếu bot đang nghĩ hoặc không đủ số bước để undo
+            if self.bot_thinking or len(self.move_history) < steps:
                 return False
             
-            r_bot, c_bot, _ = self.move_history.pop()
-            self.board[r_bot][c_bot] = 0
-            if self.pgn_history: self.pgn_history.pop()
-            
-            r_ply, c_ply, _ = self.move_history.pop()
-            self.board[r_ply][c_ply] = 0
-            if self.pgn_history: self.pgn_history.pop()
+            for _ in range(steps):
+                r, c, _ = self.move_history.pop()
+                self.board[r][c] = 0
+                if self.pgn_history: 
+                    self.pgn_history.pop()
             
             self.game_over = False
-            self.current_turn = -1
+            
+            # Cập nhật lại lượt chơi hiện tại dựa trên nước đi cuối cùng trong lịch sử
+            if self.move_history:
+                last_player = self.move_history[-1][2]
+                self.current_turn = 1 if last_player == -1 else -1
+            else:
+                self.current_turn = -1 # Nếu mảng rỗng, X (người đi trước) đánh lại
+                
             return True
+
+    def random_opening(self):
+        """Khởi tạo 3 nước đi đầu tiên (X, O, X) ngẫu nhiên quanh tâm bàn cờ."""
+        self.reset_game()
+        center = self.board_size // 2
+        
+        # Nước 1: X (Người đi trước) - Thường đánh ở trung tâm
+        r1, c1 = center, center
+        self.play_move(r1, c1, -1)
+        
+        # Nước 2: O - Đánh ngẫu nhiên 1 trong 8 ô xung quanh tâm
+        moves_2 = [(r1+dr, c1+dc) for dr in [-1, 0, 1] for dc in [-1, 0, 1] if not (dr==0 and dc==0)]
+        r2, c2 = random.choice(moves_2)
+        self.play_move(r2, c2, 1)
+        
+        # Nước 3: X - Đánh ngẫu nhiên xung quanh nước 1 hoặc nước 2 (phạm vi 5x5 giữa bàn cờ)
+        moves_3 = set()
+        for r, c in [(r1, c1), (r2, c2)]:
+            for dr in [-1, 0, 1]:
+                for dc in [-1, 0, 1]:
+                    nr, nc = r+dr, c+dc
+                    if 0 <= nr < self.board_size and 0 <= nc < self.board_size and self.board[nr][nc] == 0:
+                        moves_3.add((nr, nc))
+        r3, c3 = random.choice(list(moves_3))
+        self.play_move(r3, c3, -1)
+        
+        self.current_turn = 1 # Chuyển lượt cho O
 
     # ================= ĐÁNH GIÁ HEURISTIC VÀ LUẬT CHƠI =================
     def evaluate_line(self, line, score_matrix):
@@ -130,7 +171,6 @@ class CaroLogic:
         return line_score
 
     def evaluate_board_heuristic(self, board_state, heuristic_type="LOGISTIC"):
-        # Lựa chọn não bộ dựa trên tham số truyền vào
         score_matrix = SCORE_MATRIX_LOGISTIC if heuristic_type == "LOGISTIC" else SCORE_MATRIX_MANUAL
         
         total_score = 0
@@ -149,7 +189,6 @@ class CaroLogic:
     def check_win(self, board_state, player):
         for r in range(self.board_size):
             for c in range(self.board_size):
-                # Quét 4 hướng từ mọi ô cờ
                 for dr, dc in [(0, 1), (1, 0), (1, 1), (1, -1)]:
                     match = True
                     for i in range(5):
@@ -189,12 +228,16 @@ class CaroLogic:
                                 moves.add((nr, nc))
         
         move_list = list(moves)
+        
+        # THÊM ĐOẠN NÀY: Xử lý an toàn khi bàn cờ trống hoàn toàn
+        if not move_list:
+            return [(self.board_size // 2, self.board_size // 2)]
+            
         if self.bot_depth == 1:
-            return move_list[:5] if move_list else [(self.board_size//2, self.board_size//2)]
+            return move_list[:5]
 
         move_list.sort(key=lambda m: abs(m[0]-self.board_size//2) + abs(m[1]-self.board_size//2))
-        return move_list[:30] if self.bot_depth == 2 else (move_list if move_list else [(self.board_size//2, self.board_size//2)])
-
+        return move_list[:30] if self.bot_depth == 2 else move_list
 
     def pure_minimax(self, board_state, maximizing_player):
         self.nodes_evaluated += 1
@@ -225,7 +268,6 @@ class CaroLogic:
                 if evaluation < min_eval: min_eval = evaluation; best_move = (r, c)
             return min_eval, best_move
 
-    # Truyền thêm tham số heuristic_type (Mặc định = "LOGISTIC")
     def minimax_heuristic_only(self, board_state, depth, maximizing_player, heuristic_type="LOGISTIC"):
         self.nodes_evaluated += 1
         
@@ -253,7 +295,6 @@ class CaroLogic:
                 if evaluation < min_eval: min_eval = evaluation; best_move = (r, c)
             return min_eval, best_move
 
-    # Truyền thêm tham số heuristic_type (Mặc định = "LOGISTIC")
     def minimax(self, board_state, depth, alpha, beta, maximizing_player, heuristic_type="LOGISTIC"):
         self.nodes_evaluated += 1 
         
@@ -285,7 +326,6 @@ class CaroLogic:
                 if beta <= alpha: break 
             return min_eval, best_move
 
-
     def format_output(self, row, col):
         return f"{chr(col + ord('A'))}{row + 1}"
 
@@ -303,39 +343,52 @@ class CaroLogic:
         print(pgn_str)
         print("="*40 + "\n")
 
+
+# =====================================================================
+# KIỂM THỬ CHẾ ĐỘ AI VS AI (KHAI CUỘC NGẪU NHIÊN)
+# =====================================================================
 if __name__ == "__main__":
     game = CaroLogic(board_size=15)
     
-    # Giả lập một thế cờ ở giữa trận đấu để AI suy nghĩ
-    game.board[7][7] = -1  # X
-    game.board[7][8] = 1   # O
-    game.board[8][7] = -1  # X
+    print("--- CHẾ ĐỘ AI VS AI: KHAI CUỘC NGẪU NHIÊN ---")
+    game.random_opening()
+    print("Khai cuộc 3 nước đầu:")
+    game.print_pgn_final()
     
-    depth_test = 3 # Thử đo lường ở Depth = 3
-    print(f"--- ĐÁNH GIÁ HIỆU NĂNG THUẬT TOÁN (DEPTH = {depth_test}) ---")
+    # Cho 2 AI đánh nhau (mô phỏng tối đa 16 nước đi để xem demo)
+    max_moves = 16
+    move_count = 0
+    depth_ai1 = 2 # AI X (Logistic)
+    depth_ai2 = 2 # AI O (Manual)
     
-    # Mặc định sử dụng heuristic_type = "LOGISTIC"
-    
-    # 1. Test: Minimax + Heuristic (KHÔNG Cắt tỉa)
-    game.nodes_evaluated = 0
-    start_time = time.time()
-    score1, move1 = game.minimax_heuristic_only(game.board, depth_test, True, heuristic_type="LOGISTIC")
-    time1 = time.time() - start_time
-    print(f"1. Minimax + Heuristic (Không Alpha-Beta):")
-    print(f"   - Nước đi tốt nhất: {move1}")
-    print(f"   - Số nút phải duyệt: {game.nodes_evaluated:,} nodes")
-    print(f"   - Thời gian tính toán: {time1:.4f} giây\n")
-    
-    # 2. Test: Minimax + Heuristic + Alpha-Beta 
-    game.nodes_evaluated = 0
-    start_time = time.time()
-    score2, move2 = game.minimax(game.board, depth_test, -math.inf, math.inf, True, heuristic_type="LOGISTIC")
-    time2 = time.time() - start_time
-    print(f"2. Minimax + Heuristic + Alpha-Beta Pruning (Tối ưu):")
-    print(f"   - Nước đi tốt nhất: {move2}")
-    print(f"   - Số nút phải duyệt: {game.nodes_evaluated:,} nodes")
-    print(f"   - Thời gian tính toán: {time2:.4f} giây")
-    
-    if game.nodes_evaluated > 0:
-        percent_saved = 100 - (game.nodes_evaluated / game.nodes_evaluated) * 100 
-        print(f"   => Kỹ thuật Alpha-Beta giúp AI chạy nhanh hơn cực kỳ nhiều lần!")
+    while not game.game_over and move_count < max_moves:
+        player = game.current_turn
+        player_name = "X (Máy - Logistic)" if player == -1 else "O (Máy - Manual)"
+        heuristic = "LOGISTIC" if player == -1 else "MANUAL"
+        depth = depth_ai1 if player == -1 else depth_ai2
+        
+        print(f"Lượt của {player_name} đang suy nghĩ...")
+        
+        game.nodes_evaluated = 0
+        start_time = time.time()
+        
+        # Cả 2 AI đều dùng Alpha-Beta Pruning cho tối ưu
+        score, best_move = game.minimax(
+            game.board, depth, -math.inf, math.inf, 
+            maximizing_player=(player == 1), 
+            heuristic_type=heuristic
+        )
+        time_taken = time.time() - start_time
+        
+        if best_move:
+            game.play_move(best_move[0], best_move[1], player)
+            print(f"-> Đánh: {game.format_output(best_move[0], best_move[1])} | TG: {time_taken:.4f}s | Nút đã duyệt: {game.nodes_evaluated}")
+        else:
+            print("Hòa! Không còn nước đi hợp lệ.")
+            break
+            
+        move_count += 1
+
+    # In ra biên bản PGN tổng hợp sau khi trận đấu dừng
+    print("\n[Trận đấu kết thúc hoặc đạt giới hạn số nước test]")
+    game.print_pgn_final()
