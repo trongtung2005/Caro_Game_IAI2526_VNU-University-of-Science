@@ -7,6 +7,8 @@ Giảng viên: **CN. Vi Anh Quân, GS. Nguyễn Thế Toàn**
 
 Sinh viên thực hiện: **Lại Huy Hoàng (25%), Tô Quang Hân (25%), Nguyễn Bá Tiến Phát (25%), Nguyễn Trọng Tùng (25%)**
 
+Slide canva nhóm 2: https://canva.link/5fj49innet88c76
+
 # 🎮 Giới thiệu chung
 
 Cờ Caro (Gomoku) từ lâu đã là một trò chơi trí tuệ kinh điển, gắn liền với tuổi thơ và giảng đường của biết bao thế hệ. Chỉ với một tờ giấy và hai chiếc bút, bất kỳ ai cũng có thể dễ dàng bắt đầu một ván cờ. Tuy nhiên, đằng sau sự mộc mạc ấy lại là cả một nghệ thuật tư duy chiến thuật sâu sắc, khiến Caro luôn giữ được sức hút mãnh liệt đối với học sinh, sinh viên và giới văn phòng. Dễ chơi là vậy, nhưng để nắm giữ thế trận và giành chiến thắng lại là một thử thách không hề nhỏ.
