@@ -21,8 +21,8 @@ Chúc bạn có những trận đấu thật bùng nổ và những phút giây 
 
 ### 🧠 Trí tuệ nhân tạo (AI)
 * **Thuật toán cốt lõi:** Minimax, Minimax + Alpha-Beta Pruning,  Minimax + Alpha-Beta Pruning + Heurictic .
-* **Hàm Heuristic:** Đánh giá thế cờ theo ma trận Công - Thủ tinh vi, AI biết ưu tiên chặn các thế cờ nguy hiểm của người chơi trước khi tấn công.
-* **Đa dạng độ khó:** 3 cấp độ AI (Độ sâu Minimax 1, 2, 3).
+* **Hàm Heuristic:** Đánh giá thế cờ theo ma trận Công - Thủ tinh vi, AI biết ưu tiên chặn các thế cờ nguy hiểm của người chơi trước khi tấn công. 2 bộ số Heuristic tạo bởi Tác giả hoặc thuật toán Hồi quy Logistic.
+* **Đa dạng độ khó:** 4 cấp độ AI (Độ sâu Minimax 1, 2, 3, 4).
 
 ### 🕹️ Chế độ chơi & Tùy biến
 * **3 Chế độ thi đấu:**
